@@ -12,11 +12,11 @@ public sealed class LazyGeneratorBuilder
     public LazyGeneratorBuilder TargetingProject(FileInfo projectFile) => throw new NotImplementedException();
 
     /// <summary>
-    /// Registers an <see cref="ISourceOutput{T}"/> for the generator to use.
+    /// Registers an output for the generator to use.
     /// </summary>
-    /// <typeparam name="T">The type of the output to register.</typeparam>
-    public LazyGeneratorBuilder WithOutput<T>()
-        where T : ISourceOutput<T> => throw new NotImplementedException();
+    /// <param name="outputType">The type of the output to register.
+    /// The type has to implement <see cref="ISourceOutput{TSelf}"/>.</param>
+    public LazyGeneratorBuilder WithOutput(Type outputType) => throw new NotImplementedException();
 
     /// <summary>
     /// Builds the generator.

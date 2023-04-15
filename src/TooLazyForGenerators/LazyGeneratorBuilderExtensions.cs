@@ -71,10 +71,20 @@ public static class LazyGeneratorBuilderExtensions
         return (workspace, solution);
     }
 
+    /// <summary>
+    /// Registers an <see cref="ISourceOutput{TSelf}"/> for the generator to use.
+    /// </summary>
+    /// <typeparam name="T">The type of the output to register.</typeparam>
+    /// <param name="builder">The source builder.</param>
+    public static LazyGeneratorBuilder WithOutput<T>(this LazyGeneratorBuilder builder)
+        where T : ISourceOutput<T> =>
+        builder.WithOutput(typeof(T));
+        
+
     private static MethodInfo? withOutputMethod;
     
     private const string WithOutputMethodName = nameof(LazyGeneratorBuilder.WithOutput);
-    
+
     /// <summary>
     /// Registers all outputs from a specified assembly or the calling assembly for the generator to use. 
     /// </summary>
