@@ -1,6 +1,6 @@
 ﻿using TooLazyForGenerators;
 
-var builder = LazyGenerator.CreateBuilder();
+var builder = new LazyGeneratorBuilder();
 await builder.TargetingProjectWithName("TooLazyForGenerators.Sample");
 builder.WithOutputsFromAssembly();
 

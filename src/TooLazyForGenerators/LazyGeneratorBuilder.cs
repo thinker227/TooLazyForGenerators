@@ -1,7 +1,7 @@
 ﻿namespace TooLazyForGenerators;
 
 /// <summary>
-/// A builder for a <see cref="LazyGenerator"/>.
+/// A builder for an <see cref="ILazyGenerator"/>.
 /// </summary>
 public sealed class LazyGeneratorBuilder
 {
@@ -21,5 +21,5 @@ public sealed class LazyGeneratorBuilder
     /// <summary>
     /// Builds the generator.
     /// </summary>
-    public LazyGenerator Build() => throw new NotImplementedException();
+    public ILazyGenerator Build() => throw new NotImplementedException();
 }
