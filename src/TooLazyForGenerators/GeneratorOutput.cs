@@ -1,17 +1,21 @@
-﻿namespace TooLazyForGenerators;
+﻿using Microsoft.CodeAnalysis;
+
+namespace TooLazyForGenerators;
 
 /// <summary>
-/// The output of a <see cref="LazyGenerator"/>.
+/// The output of an <see cref="ILazyGenerator"/>.
 /// </summary>
-public abstract record GeneratorOutput
-{
-    /// <summary>
-    /// An output which indicates a success.
-    /// </summary>
-    public sealed record Success : GeneratorOutput;
+/// <param name="Files">The source files produced by the generator.</param>
+/// <param name="Errors">The error produced by the generator.</param>
+public readonly record struct GeneratorOutput(
+    IReadOnlyCollection<ProjectSourceFile> Files,
+    IReadOnlyCollection<Error> Errors);
 
-    /// <summary>
-    /// An output which indicates some error.
-    /// </summary>
-    public sealed record Failure : GeneratorOutput;
-}
+/// <summary>
+/// A a source file attached to a project. 
+/// </summary>
+/// <param name="Project">The project of the file.</param>
+/// <param name="File">The source file.</param>
+public readonly record struct ProjectSourceFile(
+    Project Project,
+    SourceFile File);

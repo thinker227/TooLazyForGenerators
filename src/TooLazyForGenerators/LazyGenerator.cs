@@ -16,15 +16,19 @@ internal sealed class LazyGenerator : ILazyGenerator
     {
         using var workspace = WorkspaceUtils.CreateWorkspace();
 
+        List<ProjectResult> results = new();
         foreach (var projectFile in ProjectFiles)
         {
-            await HandleProject(projectFile, workspace);
+            var result = await HandleProject(projectFile, workspace);
+            results.Add(result);
         }
 
-        throw new NotImplementedException();
+        return new(
+            results.SelectMany(r => r.Files).ToArray(),
+            results.SelectMany(r => r.Errors).ToArray());
     }
 
-    private async Task HandleProject(FileInfo projectFile, MSBuildWorkspace workspace)
+    private async Task<ProjectResult> HandleProject(FileInfo projectFile, MSBuildWorkspace workspace)
     {
         var project = await GetProject(workspace, projectFile);
         var files = new List<SourceFile>();
@@ -42,6 +46,12 @@ internal sealed class LazyGenerator : ILazyGenerator
         {
             await output.GetSource(ctx);
         }
+
+        return new(
+            files
+                .Select(file => new ProjectSourceFile(project, file))
+                .ToArray(),
+            errors);
     }
     
     private Task<Project> GetProject(MSBuildWorkspace workspace, FileInfo projectFile) =>
@@ -80,6 +90,6 @@ internal sealed class LazyGenerator : ILazyGenerator
     }
 
     private readonly record struct ProjectResult(
-        IReadOnlyCollection<SourceFile> Files,
+        IReadOnlyCollection<ProjectSourceFile> Files,
         IReadOnlyCollection<Error> Errors);
 }
