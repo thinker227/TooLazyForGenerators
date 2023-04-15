@@ -27,7 +27,7 @@ public sealed class LazyGeneratorBuilder
     /// Registers an output for the generator to use.
     /// </summary>
     /// <param name="outputType">The type of the output to register.
-    /// The type has to implement <see cref="ISourceOutput{TSelf}"/>.</param>
+    /// The type has to implement <see cref="ISourceOutput"/>.</param>
     public LazyGeneratorBuilder WithOutput(Type outputType)
     {
         outputs.Add(outputType);

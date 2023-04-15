@@ -2,7 +2,7 @@
 
 namespace TooLazyForGenerators.Sample;
 
-public sealed class SampleOutput : ISourceOutput<SampleOutput>
+public sealed class SampleOutput : ISourceOutput
 {
     public static SampleOutput Create() => throw new NotImplementedException();
 

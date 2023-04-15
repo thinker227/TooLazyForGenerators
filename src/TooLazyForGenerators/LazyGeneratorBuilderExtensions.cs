@@ -70,12 +70,12 @@ public static class LazyGeneratorBuilderExtensions
     }
 
     /// <summary>
-    /// Registers an <see cref="ISourceOutput{TSelf}"/> for the generator to use.
+    /// Registers an <see cref="ISourceOutput"/> for the generator to use.
     /// </summary>
     /// <typeparam name="T">The type of the output to register.</typeparam>
     /// <param name="builder">The source builder.</param>
     public static LazyGeneratorBuilder WithOutput<T>(this LazyGeneratorBuilder builder)
-        where T : ISourceOutput<T> =>
+        where T : ISourceOutput =>
         builder.WithOutput(typeof(T));
 
     /// <summary>
@@ -105,5 +105,5 @@ public static class LazyGeneratorBuilderExtensions
     }
 
     private static bool ImplementsISourceOutputT(Type type) => type.GetInterfaces()
-        .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ISourceOutput<>));
+        .Any(i => i == typeof(ISourceOutput));
 }
