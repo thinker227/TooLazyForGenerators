@@ -79,11 +79,6 @@ public static class LazyGeneratorBuilderExtensions
     public static LazyGeneratorBuilder WithOutput<T>(this LazyGeneratorBuilder builder)
         where T : ISourceOutput<T> =>
         builder.WithOutput(typeof(T));
-        
-
-    private static MethodInfo? withOutputMethod;
-    
-    private const string WithOutputMethodName = nameof(LazyGeneratorBuilder.WithOutput);
 
     /// <summary>
     /// Registers all outputs from a specified assembly or the calling assembly for the generator to use. 
@@ -97,9 +92,6 @@ public static class LazyGeneratorBuilderExtensions
         this LazyGeneratorBuilder builder,
         Assembly? assembly = null)
     {
-        withOutputMethod ??= typeof(LazyGeneratorBuilder).GetMethod(WithOutputMethodName)
-            ?? throw new InvalidOperationException($"Method {WithOutputMethodName} could not be found.");
-        
         assembly ??= Assembly.GetCallingAssembly();
 
         var types = assembly.GetTypes()
@@ -108,8 +100,7 @@ public static class LazyGeneratorBuilderExtensions
 
         foreach (var type in types)
         {
-            var method = withOutputMethod.MakeGenericMethod(type);
-            method.Invoke(builder, null);
+            builder.WithOutput(type);
         }
 
         return builder;
