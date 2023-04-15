@@ -11,6 +11,7 @@ public interface ISourceOutput
     /// <summary>
     /// Gets a source from a <see cref="Project"/>.
     /// </summary>
-    /// <param name="project">The project to create the source from.</param>
-    Task<Output> GetSource(Project project);
+    /// <param name="ctx">A context object which provides additional information
+    /// as well as methods to register output.</param>
+    Task GetSource(ISourceOutputContext ctx);
 }
