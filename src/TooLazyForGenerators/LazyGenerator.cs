@@ -28,12 +28,14 @@ internal sealed class LazyGenerator : ILazyGenerator
     {
         var project = await GetProject(workspace, projectFile);
         var files = new List<SourceFile>();
+        var errors = new List<Error>();
         
         SourceOutputContext ctx = new()
         {
             Project = project,
             CancellationToken = CancellationToken,
-            Files = files
+            Files = files,
+            Errors = errors
         };
         
         foreach (var output in GetOutputInstances())
@@ -69,7 +71,15 @@ internal sealed class LazyGenerator : ILazyGenerator
         public required CancellationToken CancellationToken { get; init; }
         
         public required ICollection<SourceFile> Files { get; init; }
+        
+        public required ICollection<Error> Errors { get; init; }
 
         public void AddSource(SourceFile file) => Files.Add(file);
+
+        public void AddError(Error error) => Errors.Add(error);
     }
+
+    private readonly record struct ProjectResult(
+        IReadOnlyCollection<SourceFile> Files,
+        IReadOnlyCollection<Error> Errors);
 }
