@@ -72,7 +72,7 @@ public static class LazyGeneratorBuilderExtensions
     /// <typeparam name="T">The type of the output to register.</typeparam>
     /// <param name="builder">The source builder.</param>
     public static LazyGeneratorBuilder WithOutput<T>(this LazyGeneratorBuilder builder)
-        where T : ISourceOutput =>
+        where T : ISourceOutput, new() =>
         builder.WithOutput(typeof(T));
 
     /// <summary>
