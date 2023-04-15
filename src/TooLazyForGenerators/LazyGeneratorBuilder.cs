@@ -40,6 +40,7 @@ public sealed class LazyGeneratorBuilder
     public ILazyGenerator Build() => new LazyGenerator()
     {
         ProjectFiles = projectFiles,
-        Outputs = outputs
+        Outputs = outputs,
+        CancellationToken = CancellationToken
     };
 }
