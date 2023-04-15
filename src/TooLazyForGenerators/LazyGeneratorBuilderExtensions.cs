@@ -38,37 +38,33 @@ public static class LazyGeneratorBuilderExtensions
         this LazyGeneratorBuilder builder,
         string projectName)
     {
-        MSBuildLocator.RegisterDefaults();
-        
         DirectoryInfo currentDirectory = new(Directory.GetCurrentDirectory());
-        var result = await TryGetSolutionInParentDirectories(currentDirectory);
+        var solutionPath = TryGetSolutionInParentDirectories(currentDirectory);
 
-        if (result is not (Workspace workspace, Solution solution)) return builder;
+        if (solutionPath is null) return builder;
 
-        using (workspace)
-        {
-            var project = solution.Projects.FirstOrDefault(p => p.Name == projectName);
-            if (project?.FilePath is null) return builder;
+        using var workspace = WorkspaceUtils.CreateWorkspace();
+        var solution = await workspace.OpenSolutionAsync(solutionPath);
 
-            builder.TargetingProject(new(project.FilePath));
-        }
+        var project = solution.Projects.FirstOrDefault(p => p.Name == projectName);
+        if (project?.FilePath is null) return builder;
+
+        builder.TargetingProject(new(project.FilePath));
         
         return builder;
     }
 
-    private static async Task<(Workspace, Solution)?> TryGetSolutionInParentDirectories(DirectoryInfo directory)
+    private static string? TryGetSolutionInParentDirectories(DirectoryInfo directory)
     {
-        var solutionFiles = directory.GetFiles("*.sln", SearchOption.TopDirectoryOnly);
-        if (solutionFiles.Length != 1)
+        while (true)
         {
+            var solutionFiles = directory.GetFiles("*.sln", SearchOption.TopDirectoryOnly);
+            
+            if (solutionFiles.Length == 1) return solutionFiles[0].FullName;
+            
             if (directory.Parent is null) return null;
-            return await TryGetSolutionInParentDirectories(directory.Parent);
+            directory = directory.Parent;
         }
-        
-        var workspace = MSBuildWorkspace.Create();
-        
-        var solution = await workspace.OpenSolutionAsync(solutionFiles[0].FullName);
-        return (workspace, solution);
     }
 
     /// <summary>
