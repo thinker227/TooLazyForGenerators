@@ -44,7 +44,9 @@ public static class LazyGeneratorBuilderExtensions
         if (solutionPath is null) return builder;
 
         using var workspace = WorkspaceUtils.CreateWorkspace();
-        var solution = await workspace.OpenSolutionAsync(solutionPath);
+        var solution = await workspace.OpenSolutionAsync(
+            solutionFilePath: solutionPath,
+            cancellationToken: builder.CancellationToken);
 
         var project = solution.Projects.FirstOrDefault(p => p.Name == projectName);
         if (project?.FilePath is null) return builder;

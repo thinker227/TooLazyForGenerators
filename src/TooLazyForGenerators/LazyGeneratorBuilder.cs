@@ -7,6 +7,11 @@ public sealed class LazyGeneratorBuilder
 {
     private readonly List<FileInfo> projectFiles = new();
     private readonly List<Type> outputs = new();
+    
+    public CancellationToken CancellationToken { get; }
+
+    public LazyGeneratorBuilder(CancellationToken cancellationToken = default) =>
+        CancellationToken = cancellationToken;
 
     /// <summary>
     /// Adds a project for the generator to target.
