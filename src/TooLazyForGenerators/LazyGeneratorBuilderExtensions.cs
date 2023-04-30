@@ -31,6 +31,12 @@ public static class LazyGeneratorBuilderExtensions
     /// </summary>
     /// <param name="builder">The source builder.</param>
     /// <param name="projectName">The name of the project to target.</param>
+    /// <remarks>
+    /// This method is incredibly slow and should not be used if speed is desired,
+    /// for instance if running as a build step,
+    /// in which case <see cref="TargetingProject"/> with a hardcoded project file path
+    /// or project file path supplied through command-line arguments would be more appropriate. 
+    /// </remarks>
     public static async Task<LazyGeneratorBuilder> TargetingProjectWithName(
         this LazyGeneratorBuilder builder,
         string projectName)
