@@ -4,16 +4,16 @@ using Microsoft.CodeAnalysis.Text;
 namespace TooLazyForGenerators;
 
 /// <summary>
-/// Extensions for <see cref="GeneratorOutput"/>.
+/// Extensions for <see cref="IGeneratorOutput"/>.
 /// </summary>
 public static class GeneratorOutputExtensions
 {
     /// <summary>
-    /// Returns the files of a <see cref="GeneratorOutput"/> as a dictionary of projects and files.
+    /// Returns the files of a <see cref="IGeneratorOutput"/> as a dictionary of projects and files.
     /// </summary>
     /// <param name="output">The source output.</param>
     public static IReadOnlyDictionary<Project, IReadOnlyCollection<SourceFile>> FilesAsDictionary(
-        this GeneratorOutput output)
+        this IGeneratorOutput output)
     {
         var result = new Dictionary<Project, IReadOnlyCollection<SourceFile>>();
 
@@ -33,7 +33,7 @@ public static class GeneratorOutputExtensions
     }
     
     /// <summary>
-    /// Writes the output of a <see cref="GeneratorOutput"/> to disk and returns
+    /// Writes the output of a <see cref="IGeneratorOutput"/> to disk and returns
     /// a status code depending on whether the output was successful or not.
     /// </summary>
     /// <param name="output">The generator output.</param>
@@ -41,7 +41,7 @@ public static class GeneratorOutputExtensions
     /// If not specified then all files will be placed into a
     /// folder called .generated in the root of the project.</param>
     public static int WriteAndReturn(
-        this GeneratorOutput output,
+        this IGeneratorOutput output,
         Func<SourceFile, IEnumerable<string>>? getFolders = null)
     {
         output.Write(getFolders);
@@ -49,14 +49,14 @@ public static class GeneratorOutputExtensions
     }
 
     /// <summary>
-    /// Writes the output of a <see cref="GeneratorOutput"/> to disk.
+    /// Writes the output of a <see cref="IGeneratorOutput"/> to disk.
     /// </summary>
     /// <param name="output">The generator output.</param>
     /// <param name="getFolders">A function to get the folders for a file.
     /// If not specified then all files will be placed into a
     /// folder called .generated in the root of the project.</param>
     public static void Write(
-        this GeneratorOutput output,
+        this IGeneratorOutput output,
         Func<SourceFile, IEnumerable<string>>? getFolders = null)
     {
         getFolders ??= GetDefaultFolders;
@@ -106,21 +106,23 @@ public static class GeneratorOutputExtensions
         Dictionary<Project, List<SourceFile>> projects,
         Func<SourceFile, IEnumerable<string>> getFolders)
     {
-        var currentSolution = solution;
+        // Just hope and pray that the workspace is not some weird eldritch nonsense from nowhere
+        // and that using it like this will actually work.
+        var workspace = solution.Workspace;
         
         foreach (var (project, files) in projects)
         {
-            var projectInCurrentSolution = currentSolution.GetProject(project.Id);
+            var projectInCurrentSolution = workspace.CurrentSolution.GetProject(project.Id);
             if (projectInCurrentSolution is null) throw new InvalidOperationException(
                 $"Project {project.Name} does not exist in the current solution.");
             
             var newProject = AddFilesToProject(projectInCurrentSolution, files, getFolders);
-            currentSolution = newProject.Solution;
-        }
 
-        var success = currentSolution.Workspace.TryApplyChanges(currentSolution);
-        if (!success) throw new InvalidOperationException(
-            "Failed to apply changes to solution.");
+            var success = workspace.TryApplyChanges(newProject.Solution);
+            // TODO: There is probably a better way to reporting a failure here than to throw an exception.
+            if (!success) throw new InvalidOperationException(
+                $"Failed to apply changes to project {project.Name}.");
+        }
     }
 
     private static Project AddFilesToProject(
@@ -145,7 +147,7 @@ public static class GeneratorOutputExtensions
     /// Returns a status code depending on whether the output was successful or not.
     /// </summary>
     /// <param name="output">The generator output.</param>
-    public static int Return(this GeneratorOutput output) =>
+    public static int Return(this IGeneratorOutput output) =>
         output.Errors.Count == 0
             ? 0
             : 1;

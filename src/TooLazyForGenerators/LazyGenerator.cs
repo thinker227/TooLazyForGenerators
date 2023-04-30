@@ -14,28 +14,27 @@ internal sealed class LazyGenerator : ILazyGenerator
     public required IReadOnlyList<PipelineStep> PipelineSteps { get; init; }
 
     public required CancellationToken CancellationToken { get; init; }
-    
-    public required MSBuildWorkspace Workspace { get; init; }
 
-    public void Dispose() => Workspace.Dispose();
-
-    public async Task<GeneratorOutput> Run(CancellationToken cancellationToken = default)
+    public async Task<IGeneratorOutput> Run(CancellationToken cancellationToken = default)
     {
+        var workspace = WorkspaceUtils.CreateWorkspace();
+        
         List<ProjectResult> results = new();
         foreach (var projectFile in ProjectFiles)
         {
-            var result = await HandleProject(projectFile);
+            var result = await HandleProject(workspace, projectFile);
             results.Add(result);
         }
 
-        return new(
+        return new GeneratorOutput(
             results.SelectMany(r => r.Files).ToArray(),
-            results.SelectMany(r => r.Errors).ToArray());
+            results.SelectMany(r => r.Errors).ToArray(),
+            workspace);
     }
 
-    private async Task<ProjectResult> HandleProject(FileInfo projectFile)
+    private async Task<ProjectResult> HandleProject(MSBuildWorkspace workspace, FileInfo projectFile)
     {
-        var project = await GetProject(projectFile);
+        var project = await GetProject(workspace, projectFile);
         var files = new List<SourceFile>();
         var errors = new List<Error>();
         
@@ -59,8 +58,8 @@ internal sealed class LazyGenerator : ILazyGenerator
             errors);
     }
     
-    private Task<Project> GetProject(FileInfo projectFile) =>
-        Workspace.OpenProjectAsync(
+    private Task<Project> GetProject(MSBuildWorkspace workspace, FileInfo projectFile) =>
+        workspace.OpenProjectAsync(
             projectFilePath: projectFile.FullName,
             cancellationToken: CancellationToken);
     
@@ -84,6 +83,7 @@ internal sealed class LazyGenerator : ILazyGenerator
                 CallPipeline(output, newCtx, pipelineIndex + 1));
 
 
+    
     private readonly struct SourceOutputContext : ISourceOutputContext
     {
         public required Project Project { get; init; }
@@ -102,4 +102,14 @@ internal sealed class LazyGenerator : ILazyGenerator
     private readonly record struct ProjectResult(
         IReadOnlyCollection<ProjectSourceFile> Files,
         IReadOnlyCollection<Error> Errors);
+
+    private readonly record struct GeneratorOutput(
+        IReadOnlyCollection<ProjectSourceFile> Files,
+        IReadOnlyCollection<Error> Errors,
+        MSBuildWorkspace Workspace) : IGeneratorOutput
+    {
+        Workspace IGeneratorOutput.Workspace => Workspace;
+
+        public void Dispose() => Workspace.Dispose();
+    }
 }

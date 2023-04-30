@@ -4,7 +4,5 @@ var builder = new LazyGeneratorBuilder();
 await builder.TargetingProjectWithName("TooLazyForGenerators.Sample");
 builder.WithOutputsFromAssembly();
 
-using var generator = builder.Build();
-
-var output = await generator.Run();
+using var output = await builder.Build().Run();
 return output.WriteAndReturn();
