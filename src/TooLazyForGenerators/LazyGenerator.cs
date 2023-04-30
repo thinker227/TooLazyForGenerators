@@ -10,6 +10,8 @@ internal sealed class LazyGenerator : ILazyGenerator
     
     public required IReadOnlyCollection<Type> Outputs { get; init; }
     
+    public required IReadOnlyList<PipelineStep> PipelineSteps { get; init; }
+
     public required CancellationToken CancellationToken { get; init; }
 
     public async Task<GeneratorOutput> Run(CancellationToken cancellationToken = default)
@@ -44,7 +46,7 @@ internal sealed class LazyGenerator : ILazyGenerator
         
         foreach (var output in GetOutputInstances())
         {
-            await output.GetSource(ctx);
+            await CallPipeline(output, ctx, 0);
         }
 
         return new(
@@ -71,8 +73,13 @@ internal sealed class LazyGenerator : ILazyGenerator
         var instance = ctor.Invoke(null);
         return (ISourceOutput)instance;
     });
-    
-    
+
+    private Task CallPipeline(ISourceOutput output, ISourceOutputContext ctx, int pipelineIndex) =>
+        pipelineIndex >= PipelineSteps.Count
+            ? output.GetSource(ctx)
+            : PipelineSteps[pipelineIndex](ctx, newCtx =>
+                CallPipeline(output, newCtx, pipelineIndex + 1));
+
 
     private readonly struct SourceOutputContext : ISourceOutputContext
     {

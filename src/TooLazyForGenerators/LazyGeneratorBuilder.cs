@@ -7,6 +7,7 @@ public sealed class LazyGeneratorBuilder
 {
     private readonly List<FileInfo> projectFiles = new();
     private readonly List<Type> outputs = new();
+    private readonly List<PipelineStep> pipelineSteps = new();
     
     public CancellationToken CancellationToken { get; }
 
@@ -35,12 +36,23 @@ public sealed class LazyGeneratorBuilder
     }
 
     /// <summary>
+    /// Adds a pipeline step the generator pipeline should use.
+    /// </summary>
+    /// <param name="pipelineStep">The step to add.</param>
+    public LazyGeneratorBuilder Using(PipelineStep pipelineStep)
+    {
+        pipelineSteps.Add(pipelineStep);
+        return this;
+    }
+
+    /// <summary>
     /// Builds the generator.
     /// </summary>
     public ILazyGenerator Build() => new LazyGenerator()
     {
         ProjectFiles = projectFiles,
         Outputs = outputs,
+        PipelineSteps = pipelineSteps,
         CancellationToken = CancellationToken
     };
 }
