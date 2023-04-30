@@ -1,4 +1,6 @@
-﻿namespace TooLazyForGenerators;
+﻿using TooLazyForGenerators.Pipelines;
+
+namespace TooLazyForGenerators;
 
 /// <summary>
 /// A builder for an <see cref="ILazyGenerator"/>.

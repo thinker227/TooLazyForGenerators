@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.MSBuild;
+using TooLazyForGenerators.Pipelines;
 
 namespace TooLazyForGenerators;
 
@@ -60,7 +61,7 @@ internal sealed class LazyGenerator : ILazyGenerator
         workspace.OpenProjectAsync(
             projectFilePath: projectFile.FullName,
             cancellationToken: CancellationToken);
-
+    
     private IEnumerable<ISourceOutput> GetOutputInstances() => Outputs.Select(type =>
     {
         var ctor = type.GetConstructor(
