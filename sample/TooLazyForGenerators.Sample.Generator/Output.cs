@@ -14,7 +14,7 @@ public sealed class Output : ISourceOutput
             public static void Hello() =>
                 Console.WriteLine("Hello, World!"); 
         }
-        """, "");
+        """, "Generated.g.cs");
 
         return Task.CompletedTask;
     }
