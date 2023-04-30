@@ -55,6 +55,7 @@ public sealed class LazyGeneratorBuilder
         ProjectFiles = projectFiles,
         Outputs = outputs,
         PipelineSteps = pipelineSteps,
-        CancellationToken = CancellationToken
+        CancellationToken = CancellationToken,
+        Workspace = WorkspaceUtils.CreateWorkspace()
     };
 }

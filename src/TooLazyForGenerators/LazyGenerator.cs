@@ -14,15 +14,17 @@ internal sealed class LazyGenerator : ILazyGenerator
     public required IReadOnlyList<PipelineStep> PipelineSteps { get; init; }
 
     public required CancellationToken CancellationToken { get; init; }
+    
+    public required MSBuildWorkspace Workspace { get; init; }
+
+    public void Dispose() => Workspace.Dispose();
 
     public async Task<GeneratorOutput> Run(CancellationToken cancellationToken = default)
     {
-        using var workspace = WorkspaceUtils.CreateWorkspace();
-
         List<ProjectResult> results = new();
         foreach (var projectFile in ProjectFiles)
         {
-            var result = await HandleProject(projectFile, workspace);
+            var result = await HandleProject(projectFile);
             results.Add(result);
         }
 
@@ -31,9 +33,9 @@ internal sealed class LazyGenerator : ILazyGenerator
             results.SelectMany(r => r.Errors).ToArray());
     }
 
-    private async Task<ProjectResult> HandleProject(FileInfo projectFile, MSBuildWorkspace workspace)
+    private async Task<ProjectResult> HandleProject(FileInfo projectFile)
     {
-        var project = await GetProject(workspace, projectFile);
+        var project = await GetProject(projectFile);
         var files = new List<SourceFile>();
         var errors = new List<Error>();
         
@@ -57,8 +59,8 @@ internal sealed class LazyGenerator : ILazyGenerator
             errors);
     }
     
-    private Task<Project> GetProject(MSBuildWorkspace workspace, FileInfo projectFile) =>
-        workspace.OpenProjectAsync(
+    private Task<Project> GetProject(FileInfo projectFile) =>
+        Workspace.OpenProjectAsync(
             projectFilePath: projectFile.FullName,
             cancellationToken: CancellationToken);
     

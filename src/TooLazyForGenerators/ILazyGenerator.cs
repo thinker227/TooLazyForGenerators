@@ -3,7 +3,7 @@
 /// <summary>
 /// A generator which takes one or multiple projects and adds source code to them.
 /// </summary>
-public interface ILazyGenerator
+public interface ILazyGenerator : IDisposable
 {
     /// <summary>
     /// Runs the generator.
