@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using Microsoft.CodeAnalysis;
+﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.MSBuild;
 using TooLazyForGenerators.Pipelines;
 
@@ -15,7 +14,7 @@ internal sealed class LazyGenerator : ILazyGenerator
 
     public required CancellationToken CancellationToken { get; init; }
     
-    public required IServiceProvider? Services { get; init; }
+    public IServiceProvider? Services { get; init; }
 
     public async Task<IGeneratorOutput> Run(CancellationToken cancellationToken = default)
     {

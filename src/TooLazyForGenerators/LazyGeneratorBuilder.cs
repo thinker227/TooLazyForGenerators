@@ -5,15 +5,13 @@ namespace TooLazyForGenerators;
 /// <summary>
 /// A builder for an <see cref="ILazyGenerator"/>.
 /// </summary>
-public sealed class LazyGeneratorBuilder
+public sealed class LazyGeneratorBuilder : ILazyGeneratorBuilder, IPipelineBuilder
 {
     private readonly List<FileInfo> projectFiles = new();
     private readonly List<Type> outputs = new();
     private readonly List<PipelineStep> pipelineSteps = new();
     
     public CancellationToken CancellationToken { get; }
-    
-    public IServiceProvider? Services { get; set; }
 
     public LazyGeneratorBuilder(CancellationToken cancellationToken = default) =>
         CancellationToken = cancellationToken;
@@ -28,6 +26,9 @@ public sealed class LazyGeneratorBuilder
         return this;
     }
 
+    ILazyGeneratorBuilder ILazyGeneratorBuilder.TargetingProject(FileInfo projectFile) =>
+        TargetingProject(projectFile);
+    
     /// <summary>
     /// Registers an output for the generator to use.
     /// </summary>
@@ -39,6 +40,9 @@ public sealed class LazyGeneratorBuilder
         return this;
     }
 
+    ILazyGeneratorBuilder ILazyGeneratorBuilder.WithOutput(Type outputType) =>
+        WithOutput(outputType);
+    
     /// <summary>
     /// Adds a pipeline step the generator pipeline should use.
     /// </summary>
@@ -49,6 +53,9 @@ public sealed class LazyGeneratorBuilder
         return this;
     }
 
+    IPipelineBuilder IPipelineBuilder.Using(PipelineStep pipelineStep) =>
+        Using(pipelineStep);
+    
     /// <summary>
     /// Builds the generator.
     /// </summary>
@@ -57,7 +64,6 @@ public sealed class LazyGeneratorBuilder
         ProjectFiles = projectFiles,
         Outputs = outputs,
         PipelineSteps = pipelineSteps,
-        CancellationToken = CancellationToken,
-        Services = Services
+        CancellationToken = CancellationToken
     };
 }
