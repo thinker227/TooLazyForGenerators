@@ -37,18 +37,19 @@ internal sealed class LazyGenerator : ILazyGenerator
         var project = await GetProject(workspace, projectFile);
         var files = new List<SourceFile>();
         var errors = new List<Error>();
-        
-        SourceOutputContext ctx = new()
+
+        var runner = new GeneratorOutputRunner()
         {
-            Project = project,
-            CancellationToken = CancellationToken,
+            PipelineSteps = PipelineSteps,
             Files = files,
-            Errors = errors
+            Errors = errors,
+            Project = project,
+            CancellationToken = CancellationToken
         };
         
-        foreach (var output in GetOutputInstances())
+        foreach (var outputType in Outputs)
         {
-            await CallPipeline(output, ctx, 0);
+            await runner.Run(outputType);
         }
 
         return new(
@@ -62,42 +63,8 @@ internal sealed class LazyGenerator : ILazyGenerator
         workspace.OpenProjectAsync(
             projectFilePath: projectFile.FullName,
             cancellationToken: CancellationToken);
-    
-    private IEnumerable<ISourceOutput> GetOutputInstances() => Outputs.Select(type =>
-    {
-        var ctor = type.GetConstructor(
-            BindingFlags.Instance | BindingFlags.Public,
-            Array.Empty<Type>());
-
-        if (ctor is null)
-            throw new InvalidOperationException($"{type.FullName} has no public parameterless constructor.");
-
-        var instance = ctor.Invoke(null);
-        return (ISourceOutput)instance;
-    });
-
-    private Task CallPipeline(ISourceOutput output, ISourceOutputContext ctx, int pipelineIndex) =>
-        pipelineIndex >= PipelineSteps.Count
-            ? output.GetSource(ctx)
-            : PipelineSteps[pipelineIndex](ctx, newCtx =>
-                CallPipeline(output, newCtx, pipelineIndex + 1));
-
 
     
-    private readonly struct SourceOutputContext : ISourceOutputContext
-    {
-        public required Project Project { get; init; }
-    
-        public required CancellationToken CancellationToken { get; init; }
-        
-        public required ICollection<SourceFile> Files { get; init; }
-        
-        public required ICollection<Error> Errors { get; init; }
-
-        public void AddSource(SourceFile file) => Files.Add(file);
-
-        public void AddError(Error error) => Errors.Add(error);
-    }
 
     private readonly record struct ProjectResult(
         IReadOnlyCollection<ProjectSourceFile> Files,
