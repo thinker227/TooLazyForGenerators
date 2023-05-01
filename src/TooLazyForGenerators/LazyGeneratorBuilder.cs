@@ -12,6 +12,8 @@ public sealed class LazyGeneratorBuilder
     private readonly List<PipelineStep> pipelineSteps = new();
     
     public CancellationToken CancellationToken { get; }
+    
+    public IServiceProvider? Services { get; set; }
 
     public LazyGeneratorBuilder(CancellationToken cancellationToken = default) =>
         CancellationToken = cancellationToken;
@@ -55,6 +57,7 @@ public sealed class LazyGeneratorBuilder
         ProjectFiles = projectFiles,
         Outputs = outputs,
         PipelineSteps = pipelineSteps,
-        CancellationToken = CancellationToken
+        CancellationToken = CancellationToken,
+        Services = Services
     };
 }

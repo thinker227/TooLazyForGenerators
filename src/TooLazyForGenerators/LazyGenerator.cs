@@ -14,6 +14,8 @@ internal sealed class LazyGenerator : ILazyGenerator
     public required IReadOnlyList<PipelineStep> PipelineSteps { get; init; }
 
     public required CancellationToken CancellationToken { get; init; }
+    
+    public required IServiceProvider? Services { get; init; }
 
     public async Task<IGeneratorOutput> Run(CancellationToken cancellationToken = default)
     {
@@ -44,7 +46,8 @@ internal sealed class LazyGenerator : ILazyGenerator
             Files = files,
             Errors = errors,
             Project = project,
-            CancellationToken = CancellationToken
+            CancellationToken = CancellationToken,
+            Services = Services
         };
         
         foreach (var outputType in Outputs)

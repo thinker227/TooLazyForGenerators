@@ -20,7 +20,15 @@ public sealed class PipelineContext
 {
     public required Type TargetType { get; set; }
     
-    public required Func<Type, ISourceOutput> CreateTarget { get; set; }
+    public required Func<TargetCreationContext, ISourceOutput> CreateTarget { get; set; }
     
     public required Project Project { get; set; }
+    
+    public required CancellationToken CancellationToken { get; init; }
+    
+    public required IServiceProvider? Services { get; init; }
 }
+
+public readonly record struct TargetCreationContext(
+    Type TargetType,
+    IServiceProvider? Services);

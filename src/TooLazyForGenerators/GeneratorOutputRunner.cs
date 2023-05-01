@@ -15,6 +15,8 @@ internal sealed class GeneratorOutputRunner
     public required Project Project { get; init; }
     
     public required CancellationToken CancellationToken { get; init; }
+    
+    public required IServiceProvider? Services { get; init; }
 
     public Task Run(Type outputType)
     {
@@ -23,6 +25,8 @@ internal sealed class GeneratorOutputRunner
             TargetType = outputType,
             CreateTarget = CreateSourceOutput,
             Project = Project,
+            CancellationToken = CancellationToken,
+            Services = Services
         };
 
         return CallPipelineStep(ctx, 0);
@@ -33,8 +37,9 @@ internal sealed class GeneratorOutputRunner
         if (stepIndex < PipelineSteps.Count)
             return PipelineSteps[stepIndex](pipelineContext, newCtx =>
                 CallPipelineStep(newCtx, stepIndex + 1));
-        
-        var instance = pipelineContext.CreateTarget(pipelineContext.TargetType);
+
+        var creationContext = new TargetCreationContext(pipelineContext.TargetType, pipelineContext.Services);
+        var instance = pipelineContext.CreateTarget(creationContext);
         var outputContext = new SourceOutputContext()
         {
             Files = Files,
@@ -45,8 +50,10 @@ internal sealed class GeneratorOutputRunner
         return instance.GetSource(outputContext);
     }
     
-    private static ISourceOutput CreateSourceOutput(Type type)
+    private static ISourceOutput CreateSourceOutput(TargetCreationContext ctx)
     {
+        var type = ctx.TargetType;
+        
         var ctor = type.GetConstructor(
             BindingFlags.Instance | BindingFlags.Public,
             Array.Empty<Type>());
