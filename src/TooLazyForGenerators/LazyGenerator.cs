@@ -1,5 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.MSBuild;
+using Microsoft.Extensions.DependencyInjection;
 using TooLazyForGenerators.Pipelines;
 
 namespace TooLazyForGenerators;
@@ -57,6 +58,8 @@ public sealed class LazyGenerator : ILazyGenerator
         var files = new List<SourceFile>();
         var errors = new List<Error>();
 
+        using var serviceScope = Services.CreateScope();
+        
         var runner = new GeneratorOutputRunner()
         {
             PipelineSteps = PipelineSteps,
@@ -64,7 +67,7 @@ public sealed class LazyGenerator : ILazyGenerator
             Errors = errors,
             Project = project,
             CancellationToken = CancellationToken,
-            Services = Services
+            ServiceScope = serviceScope
         };
         
         foreach (var outputType in Outputs)

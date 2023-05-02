@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using Microsoft.CodeAnalysis;
+using Microsoft.Extensions.DependencyInjection;
 using TooLazyForGenerators.Pipelines;
 
 namespace TooLazyForGenerators;
@@ -16,8 +17,8 @@ internal sealed class GeneratorOutputRunner
     
     public required CancellationToken CancellationToken { get; init; }
     
-    public required IServiceProvider Services { get; init; }
-
+    public required IServiceScope ServiceScope { get; init; }
+    
     public Task Run(Type outputType)
     {
         var ctx = new PipelineContext()
@@ -26,7 +27,7 @@ internal sealed class GeneratorOutputRunner
             CreateTarget = CreateSourceOutput,
             Project = Project,
             CancellationToken = CancellationToken,
-            Services = Services
+            Services = ServiceScope.ServiceProvider
         };
 
         return CallPipelineStep(ctx, 0);
