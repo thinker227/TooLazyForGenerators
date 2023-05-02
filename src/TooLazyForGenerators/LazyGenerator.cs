@@ -32,7 +32,7 @@ public sealed class LazyGenerator : ILazyGenerator
     /// <summary>
     /// The services for the generator.
     /// </summary>
-    public IServiceProvider? Services { get; init; }
+    public required IServiceProvider Services { get; init; }
 
     public async Task<IGeneratorOutput> Run(CancellationToken cancellationToken = default)
     {

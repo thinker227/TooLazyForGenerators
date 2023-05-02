@@ -16,7 +16,7 @@ internal sealed class GeneratorOutputRunner
     
     public required CancellationToken CancellationToken { get; init; }
     
-    public required IServiceProvider? Services { get; init; }
+    public required IServiceProvider Services { get; init; }
 
     public Task Run(Type outputType)
     {

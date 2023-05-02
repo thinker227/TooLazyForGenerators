@@ -44,7 +44,7 @@ public sealed class PipelineContext
     /// <summary>
     /// The services for the generator.
     /// </summary>
-    public required IServiceProvider? Services { get; init; }
+    public required IServiceProvider Services { get; init; }
 }
 
 /// <summary>
@@ -55,4 +55,4 @@ public sealed class PipelineContext
 /// <param name="Services">The services for the generator.</param>
 public readonly record struct TargetCreationContext(
     Type TargetType,
-    IServiceProvider? Services);
+    IServiceProvider Services);
