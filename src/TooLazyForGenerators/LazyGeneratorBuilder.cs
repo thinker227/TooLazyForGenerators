@@ -2,6 +2,9 @@
 
 namespace TooLazyForGenerators;
 
+/// <summary>
+/// A builder for a <see cref="LazyGenerator"/>.
+/// </summary>
 public sealed class LazyGeneratorBuilder : ILazyGeneratorBuilder, IPipelineBuilder
 {
     private readonly List<FileInfo> projectFiles = new();
@@ -10,6 +13,10 @@ public sealed class LazyGeneratorBuilder : ILazyGeneratorBuilder, IPipelineBuild
     
     public CancellationToken CancellationToken { get; }
 
+    /// <summary>
+    /// Initializes a new <see cref="LazyGeneratorBuilder"/> instance.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token for the builder.</param>
     public LazyGeneratorBuilder(CancellationToken cancellationToken = default) =>
         CancellationToken = cancellationToken;
 
