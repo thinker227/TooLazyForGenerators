@@ -14,13 +14,13 @@ A major difference to source generators is that Too Lazy for Generators generato
 
 The simplest possible sample consists of a regular .NET 7 console app with (only!) two source files:
 
-<sub>[Program.cs](./sample/TooLazyForGenerators.Sample.Generator/Program.cs)</sub>
+<sub>[Program.cs](./samples/MinimalGenerator/Program.cs)</sub>
 ```cs
 using TooLazyForGenerators;
 
 var builder = new LazyGeneratorBuilder();
-// Target the project TooLazyForGenerators.Sample.
-await builder.TargetingProjectWithName("TooLazyForGenerators.Sample");
+// Target the project ExampleApp.
+await builder.TargetingProjectWithName("ExampleApp");
 // Use all outputs from the current assembly.
 builder.WithOutputsFromAssembly();
 
@@ -29,9 +29,9 @@ using var output = await builder.Build().Run();
 // Write the output to disk and return a status code.
 return output.WriteAndReturn();
 ```
-<sub>[Output.cs](./sample/TooLazyForGenerators.Sample.Generator/Output.cs)</sub>
+<sub>[Output.cs](./samples/MinimalGenerator/Output.cs)</sub>
 ```cs
-namespace TooLazyForGenerators.Sample.Generator;
+using TooLazyForGenerators;
 
 public sealed class Output : ISourceOutput
 {
@@ -52,6 +52,7 @@ public sealed class Output : ISourceOutput
         return Task.CompletedTask;
     }
 }
+
 ```
 
 On startup, a new `LazyGeneratorBuilder` is created and configured with some basic defaults. The builder is then built into a `LazyGenerator` and run asynchronously. Lastly, the output of the generator is written to disk and a status code is returned based on whether the generator reported any errors. The structure of creating a builder, configuring it, then building and running it is heavily inspired by the minimal startup API of [ASP.NET Core](https://github.com/dotnet/aspnetcore).

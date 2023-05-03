@@ -2,7 +2,7 @@
 
 var builder = new LazyGeneratorBuilder();
 // Target the project TooLazyForGenerators.Sample.
-await builder.TargetingProjectWithName("TooLazyForGenerators.Sample");
+await builder.TargetingProjectWithName("ExampleApp");
 // Use all outputs from the current assembly.
 builder.WithOutputsFromAssembly();
 
