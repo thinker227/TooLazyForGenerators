@@ -126,4 +126,4 @@ public sealed class Output : ISourceOutput
 
 #### Scopes
 
-A new service scope is created for each new *project*, meaning that outputs for the same project will all get the same scoped services. If you want to create a new service for each call to an output, register it as transient, and as a singleton if you want the same service through every single call.
+A new service scope is created for each *project*, meaning that outputs for the same project will all get the same scoped services. If you want to create a new service for each call to an output, register it as transient, and as a singleton if you want the same service through every single call.
