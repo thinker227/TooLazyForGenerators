@@ -39,13 +39,9 @@ public sealed class LazyGenerator : ILazyGenerator
     public async Task<IGeneratorOutput> Run(CancellationToken cancellationToken = default)
     {
         var workspace = WorkspaceUtils.CreateWorkspace();
-        
-        List<ProjectResult> results = new();
-        foreach (var projectFile in ProjectFiles)
-        {
-            var result = await HandleProject(workspace, projectFile);
-            results.Add(result);
-        }
+
+        var results = await Task.WhenAll(ProjectFiles
+            .Select(file => HandleProject(workspace, file)));
 
         return new GeneratorOutput(
             results.SelectMany(r => r.Files).ToArray(),
@@ -56,7 +52,6 @@ public sealed class LazyGenerator : ILazyGenerator
     private async Task<ProjectResult> HandleProject(MSBuildWorkspace workspace, FileInfo projectFile)
     {
         var project = await GetProject(workspace, projectFile);
-        // TODO: Make these thread-safe.
         var files = new ConcurrentBag<SourceFile>();
         var errors = new ConcurrentBag<Error>();
 
@@ -72,9 +67,8 @@ public sealed class LazyGenerator : ILazyGenerator
             ServiceScope = serviceScope
         };
 
-        var runTasks = Outputs
-            .Select(type => runner.Run(type));
-        await Task.WhenAll(runTasks);
+        await Task.WhenAll(Outputs
+            .Select(type => runner.Run(type)));
 
         return new(
             files
