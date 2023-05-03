@@ -1,7 +1,7 @@
 ﻿namespace TooLazyForGenerators;
 
 /// <summary>
-/// Extensions for compatibility between .NET Standard 2.0 and the latest language version.
+/// Extensions for compatibility between .NET Framework 4.7.2, .NET Core 3.1, and the latest language version.
 /// </summary>
 internal static class CompatibilityExtensions
 {
