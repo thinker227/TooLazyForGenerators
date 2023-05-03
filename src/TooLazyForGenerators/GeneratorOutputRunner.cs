@@ -58,8 +58,10 @@ internal sealed class GeneratorOutputRunner
         
         var ctor = type.GetConstructor(
             BindingFlags.Instance | BindingFlags.Public,
-            Array.Empty<Type>());
-
+            null,
+            Array.Empty<Type>(),
+            null);
+        
         if (ctor is null)
             throw new InvalidOperationException($"{type.FullName} has no public parameterless constructor.");
 
