@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Collections.Concurrent;
+using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.DependencyInjection;
 using TooLazyForGenerators.Pipelines;
@@ -9,9 +10,9 @@ internal sealed class GeneratorOutputRunner
 {
     public required IReadOnlyList<PipelineStep> PipelineSteps { get; init; }
     
-    public required ICollection<SourceFile> Files { get; init; }
+    public required ConcurrentBag<SourceFile> Files { get; init; }
     
-    public required ICollection<Error> Errors { get; init; }
+    public required ConcurrentBag<Error> Errors { get; init; }
     
     public required Project Project { get; init; }
     
@@ -74,9 +75,9 @@ internal sealed class GeneratorOutputRunner
     
         public required CancellationToken CancellationToken { get; init; }
         
-        public required ICollection<SourceFile> Files { get; init; }
+        public required ConcurrentBag<SourceFile> Files { get; init; }
         
-        public required ICollection<Error> Errors { get; init; }
+        public required ConcurrentBag<Error> Errors { get; init; }
 
         public void AddSource(SourceFile file) => Files.Add(file);
 

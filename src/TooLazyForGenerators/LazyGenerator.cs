@@ -1,4 +1,5 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using System.Collections.Concurrent;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.MSBuild;
 using Microsoft.Extensions.DependencyInjection;
 using TooLazyForGenerators.Pipelines;
@@ -56,8 +57,8 @@ public sealed class LazyGenerator : ILazyGenerator
     {
         var project = await GetProject(workspace, projectFile);
         // TODO: Make these thread-safe.
-        var files = new List<SourceFile>();
-        var errors = new List<Error>();
+        var files = new ConcurrentBag<SourceFile>();
+        var errors = new ConcurrentBag<Error>();
 
         using var serviceScope = Services.CreateScope();
         
