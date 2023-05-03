@@ -3,7 +3,7 @@
 namespace TooLazyForGenerators;
 
 /// <summary>
-/// Extensions for <see cref="LazyGeneratorBuilder"/>.
+/// Extensions for <see cref="ILazyGeneratorBuilder"/>.
 /// </summary>
 public static class LazyGeneratorBuilderExtensions
 {
@@ -12,9 +12,10 @@ public static class LazyGeneratorBuilderExtensions
     /// </summary>
     /// <param name="builder">The source builder-</param>
     /// <param name="projectFilePath">The file path to the project (<c>.csproj</c>) file of the project.</param>
-    public static LazyGeneratorBuilder TargetingProject(
-        this LazyGeneratorBuilder builder,
+    public static TBuilder TargetingProject<TBuilder>(
+        this TBuilder builder,
         string projectFilePath)
+        where TBuilder : ILazyGeneratorBuilder
     {
         FileInfo file = new(projectFilePath);
         if (!file.Exists)
@@ -34,12 +35,13 @@ public static class LazyGeneratorBuilderExtensions
     /// <remarks>
     /// This method is incredibly slow and should not be used if speed is desired,
     /// for instance if running as a build step,
-    /// in which case <see cref="TargetingProject"/> with a hardcoded project file path
+    /// in which case <see cref="TargetingProject{TBuilder}"/> with a hardcoded project file path
     /// or project file path supplied through command-line arguments would be more appropriate. 
     /// </remarks>
-    public static async Task<LazyGeneratorBuilder> TargetingProjectWithName(
-        this LazyGeneratorBuilder builder,
+    public static async Task<TBuilder> TargetingProjectWithName<TBuilder>(
+        this TBuilder builder,
         string projectName)
+        where TBuilder : ILazyGeneratorBuilder
     {
         DirectoryInfo currentDirectory = new(Directory.GetCurrentDirectory());
         var solutionPath = TryGetSolutionInParentDirectories(currentDirectory);
@@ -77,7 +79,7 @@ public static class LazyGeneratorBuilderExtensions
     /// </summary>
     /// <typeparam name="T">The type of the output to register.</typeparam>
     /// <param name="builder">The source builder.</param>
-    public static LazyGeneratorBuilder WithOutput<T>(this LazyGeneratorBuilder builder)
+    public static void WithOutput<T>(this ILazyGeneratorBuilder builder)
         where T : ISourceOutput, new() =>
         builder.WithOutput(typeof(T));
 
@@ -89,9 +91,10 @@ public static class LazyGeneratorBuilderExtensions
     /// If <see langword="null"/> then the calling assembly will be used.</param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    public static LazyGeneratorBuilder WithOutputsFromAssembly(
-        this LazyGeneratorBuilder builder,
+    public static TBuilder WithOutputsFromAssembly<TBuilder>(
+        this TBuilder builder,
         Assembly? assembly = null)
+        where TBuilder : ILazyGeneratorBuilder
     {
         assembly ??= Assembly.GetCallingAssembly();
 

@@ -1,4 +1,6 @@
-﻿namespace TooLazyForGenerators.Pipelines;
+﻿using Microsoft.Extensions.DependencyInjection;
+
+namespace TooLazyForGenerators.Pipelines;
 
 /// <summary>
 /// Extensions relating to pipelines. 
@@ -11,38 +13,37 @@ public static class PipelineExtensions
     /// <param name="builder">The source builder.</param>
     /// <param name="languageName">The name of the language to filter for.
     /// It is recommended to use <see cref="Microsoft.CodeAnalysis.LanguageNames"/> for common language names.</param>
-    public static LazyGeneratorBuilder ForLanguage(this LazyGeneratorBuilder builder, string languageName) =>
+    public static TBuilder ForLanguage<TBuilder>(
+        this TBuilder builder,
+        string languageName)
+        where TBuilder : IPipelineBuilder
+    {
         builder.Using((ctx, next) =>
             ctx.Project.Language == languageName
                 ? next(ctx)
                 : Task.CompletedTask);
-
-    /// <summary>
-    /// Adds exception handling to the generator pipeline.
-    /// </summary>
-    /// <param name="builder">The source builder.</param>
-    /// <param name="createError">A function to turn an exception into an error.
-    /// Will use a default function if not specified.</param>
-    public static LazyGeneratorBuilder WithExceptionHandling(
-        this LazyGeneratorBuilder builder,
-        Func<Exception, ISourceOutputContext, Error>? createError = null)
-    {
-        createError ??= CreateDefaultError;
         
-        return builder.Using(async (ctx, next) =>
-        {
-            try
-            {
-                await next(ctx);
-            }
-            catch (Exception e)
-            {
-                ctx.AddError(createError(e, ctx));
-            }
-        });
+        return builder;
     }
 
-    private static Error CreateDefaultError(Exception e, ISourceOutputContext _) => new(
-        $"An exception of type {e.GetType().Name} occured in the generator pipeline.\n{e}", 
-        null);
+    /// <summary>
+    /// Adds dependency injection to the generator pipeline.
+    /// </summary>
+    /// <param name="builder">The source builder.</param>
+    public static TBuilder UsingDependencyInjection<TBuilder>(
+        this TBuilder builder)
+        where TBuilder : IPipelineBuilder
+    {
+        builder.Using((ctx, next) =>
+        {
+            ctx.CreateTarget = creationCtx =>
+                (ISourceOutput)ActivatorUtilities.CreateInstance(
+                    creationCtx.Services,
+                    creationCtx.TargetType);
+            
+            return next(ctx);
+        });
+        
+        return builder;
+    }
 }

@@ -1,60 +1,67 @@
-﻿using TooLazyForGenerators.Pipelines;
+﻿using Microsoft.Extensions.DependencyInjection;
+using TooLazyForGenerators.Pipelines;
 
 namespace TooLazyForGenerators;
 
 /// <summary>
-/// A builder for an <see cref="ILazyGenerator"/>.
+/// A builder for a <see cref="LazyGenerator"/>.
 /// </summary>
-public sealed class LazyGeneratorBuilder
+public sealed class LazyGeneratorBuilder : ILazyGeneratorBuilder, IPipelineBuilder
 {
     private readonly List<FileInfo> projectFiles = new();
     private readonly List<Type> outputs = new();
     private readonly List<PipelineStep> pipelineSteps = new();
     
     public CancellationToken CancellationToken { get; }
-
-    public LazyGeneratorBuilder(CancellationToken cancellationToken = default) =>
-        CancellationToken = cancellationToken;
+    
+    /// <summary>
+    /// The services for the generator.
+    /// </summary>
+    public IServiceCollection Services { get; }
 
     /// <summary>
-    /// Adds a project for the generator to target.
+    /// Initializes a new <see cref="LazyGeneratorBuilder"/> instance.
     /// </summary>
-    /// <param name="projectFile">The project (<c>.csproj</c>) file of the project.</param>
+    /// <param name="cancellationToken">The cancellation token for the builder.</param>
+    public LazyGeneratorBuilder(CancellationToken cancellationToken = default)
+    {
+        CancellationToken = cancellationToken;
+        Services = new ServiceCollection();
+    }
+
     public LazyGeneratorBuilder TargetingProject(FileInfo projectFile)
     {
         projectFiles.Add(projectFile);
         return this;
     }
 
-    /// <summary>
-    /// Registers an output for the generator to use.
-    /// </summary>
-    /// <param name="outputType">The type of the output to register.
-    /// The type has to implement <see cref="ISourceOutput"/>.</param>
+    ILazyGeneratorBuilder ILazyGeneratorBuilder.TargetingProject(FileInfo projectFile) =>
+        TargetingProject(projectFile);
+    
     public LazyGeneratorBuilder WithOutput(Type outputType)
     {
         outputs.Add(outputType);
         return this;
     }
 
-    /// <summary>
-    /// Adds a pipeline step the generator pipeline should use.
-    /// </summary>
-    /// <param name="pipelineStep">The step to add.</param>
+    ILazyGeneratorBuilder ILazyGeneratorBuilder.WithOutput(Type outputType) =>
+        WithOutput(outputType);
+    
     public LazyGeneratorBuilder Using(PipelineStep pipelineStep)
     {
         pipelineSteps.Add(pipelineStep);
         return this;
     }
 
-    /// <summary>
-    /// Builds the generator.
-    /// </summary>
+    IPipelineBuilder IPipelineBuilder.Using(PipelineStep pipelineStep) =>
+        Using(pipelineStep);
+    
     public ILazyGenerator Build() => new LazyGenerator()
     {
         ProjectFiles = projectFiles,
         Outputs = outputs,
         PipelineSteps = pipelineSteps,
-        CancellationToken = CancellationToken
+        CancellationToken = CancellationToken,
+        Services = Services.BuildServiceProvider()
     };
 }
