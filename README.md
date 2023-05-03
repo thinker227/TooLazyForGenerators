@@ -56,9 +56,13 @@ public sealed class Output : ISourceOutput
 
 On startup, a new `LazyGeneratorBuilder` is created and configured with some basic defaults. The builder is then built into a `LazyGenerator` and run asynchronously. Lastly, the output of the generator is written to disk and a status code is returned based on whether the generator reported any errors. The structure of creating a builder, configuring it, then building and running it is heavily inspired by the minimal startup API of [ASP.NET Core](https://github.com/dotnet/aspnetcore).
 
+### Target projects
+
 A target project is registered in the builder using `ILazyGeneratorBuilder.TargetingProject(FileInfo)` taking the `.csproj` file of the project as its argument, its overload taking a string instead of a `FileInfo`, or `ILazyGeneratorBuilder.TargetingProjectWithName(string)` which attempts to search for a solution file in a parent directory and target a project in the solution with the supplied name (this method is very slow but provides easily the best API).
 
-A generator output is defined as a class implementing `ISourceOutput`. Each output has access to an `ISourceOutputContext` which provides a variety of properties and methods to read projects and produce new source files and errors. The output has to be registered in the builder using `ILazyGeneratorBuilder.WithOutput(Type)`, its generic variant `ILazyGeneratorBuilder.WithOutput<T>()`, or `ILazyGeneratorBuilder.WithOutputsFromAssembly([Assembly?])` which takes an optional assembly (otherwise using the calling assembly) and registers all types implementing `ISourceOutput` in it through reflection.
+### Generator outputs
+
+A generator output is defined as a class implementing `ISourceOutput`. Each output has access to an `ISourceOutputContext` which provides a variety of properties and methods to read projects and produce new source files and errors. The output has to be registered in the builder using `ILazyGeneratorBuilder.WithOutput(Type)`, its generic variant `ILazyGeneratorBuilder.WithOutput<T>()`, or `ILazyGeneratorBuilder.WithOutputsFromAssembly([Assembly?])` which takes an optional assembly (otherwise using the calling assembly) and registers all types implementing `ISourceOutput` in it through reflection. It is worth noting that, by default, generator output classes have to have a parameterless constructor (or use [dependency injection](#dependency-injection-dependency-injection-for-everyone)).
 
 ## Additional goodies
 
@@ -124,6 +128,8 @@ public sealed class Output : ISourceOutput
 }
 ```
 
+Services are registered through the `LazyGenerator.Services` and are built immediately when calling `LazyGenerator.Build()`. The registered services are then available at several points throughout the library, such as pipelines and generator outputs. If `IPipelineBuilder.UsingDependencyInjection()` is called during configuration, then [constructor injection](https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection#constructor-injection-behavior) is available to generator output classes, i.e. that types that are registered as services will be able to be provided to the class through its constructor(s).
+
 #### Scopes
 
-A new service scope is created for each *project*, meaning that outputs for the same project will all get the same scoped services. If you want to create a new service for each call to an output, register it as transient, and as a singleton if you want the same service through every single call.
+A new [service scope](https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection#service-lifetimes) is created for each *project*, meaning that outputs for the same project will all get the same [scoped](https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection#scoped) services. If you want to create a new service for each call to an output then register it as [transient](https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection#transient). If a service should be created once and never again then register it as a [singleton](https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection#singleton).
