@@ -55,6 +55,7 @@ public sealed class LazyGenerator : ILazyGenerator
     private async Task<ProjectResult> HandleProject(MSBuildWorkspace workspace, FileInfo projectFile)
     {
         var project = await GetProject(workspace, projectFile);
+        // TODO: Make these thread-safe.
         var files = new List<SourceFile>();
         var errors = new List<Error>();
 
@@ -69,11 +70,10 @@ public sealed class LazyGenerator : ILazyGenerator
             CancellationToken = CancellationToken,
             ServiceScope = serviceScope
         };
-        
-        foreach (var outputType in Outputs)
-        {
-            await runner.Run(outputType);
-        }
+
+        var runTasks = Outputs
+            .Select(type => runner.Run(type));
+        await Task.WhenAll(runTasks);
 
         return new(
             files
