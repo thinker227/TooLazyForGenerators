@@ -1,7 +1,7 @@
 ﻿using TooLazyForGenerators;
 
 var builder = new LazyGeneratorBuilder();
-// Target the project TooLazyForGenerators.Sample.
+// Target the project ExampleApp.
 await builder.TargetingProjectWithName("ExampleApp");
 // Use all outputs from the current assembly.
 builder.WithOutputsFromAssembly();
