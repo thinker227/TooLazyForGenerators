@@ -58,7 +58,7 @@ On startup, a new `LazyGeneratorBuilder` is created and configured with some bas
 
 A target project is registered in the builder using `ILazyGeneratorBuilder.TargetingProject(FileInfo)` taking the `.csproj` file of the project as its argument, its overload taking a string instead of a `FileInfo`, or `ILazyGeneratorBuilder.TargetingProjectWithName(string)` which attempts to search for a solution file in a parent directory and target a project in the solution with the supplied name (this method is very slow but provides easily the best API).
 
-A generator output is defined as a class implementing `ISourceOutput`. The output has to be registered in the builder using `ILazyGeneratorBuilder.WithOutput(Type)`, its generic variant `ILazyGeneratorBuilder.WithOutput<T>()`, or `ILazyGeneratorBuilder.WithOutputsFromAssembly([Assembly?])` which takes an optional assembly (otherwise using the calling assembly) and registers all types implementing `ISourceOutput` in it through reflection.
+A generator output is defined as a class implementing `ISourceOutput`. Each output has access to an `ISourceOutputContext` which provides a variety of properties and methods to read projects and produce new source files and errors. The output has to be registered in the builder using `ILazyGeneratorBuilder.WithOutput(Type)`, its generic variant `ILazyGeneratorBuilder.WithOutput<T>()`, or `ILazyGeneratorBuilder.WithOutputsFromAssembly([Assembly?])` which takes an optional assembly (otherwise using the calling assembly) and registers all types implementing `ISourceOutput` in it through reflection.
 
 ## Additional goodies
 
