@@ -4,7 +4,7 @@ namespace PipelineGenerator;
 
 public sealed class OutputB : ISourceOutput
 {
-    public Task GetSource(ISourceOutputContext ctx)
+    public Task GetSource(SourceOutputContext ctx)
     {
         Console.WriteLine("Output B");
         return Task.CompletedTask;

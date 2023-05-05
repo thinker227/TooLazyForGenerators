@@ -42,13 +42,7 @@ internal sealed class GeneratorOutputRunner
 
         var creationContext = new TargetCreationContext(pipelineContext.TargetType, pipelineContext.Services);
         var instance = pipelineContext.CreateTarget(creationContext);
-        var outputContext = new SourceOutputContext()
-        {
-            Files = Files,
-            Errors = Errors,
-            Project = pipelineContext.Project,
-            CancellationToken = CancellationToken
-        };
+        var outputContext = new SourceOutputContext(pipelineContext.Project, CancellationToken, Files, Errors);
         return instance.GetSource(outputContext);
     }
     
@@ -67,22 +61,5 @@ internal sealed class GeneratorOutputRunner
 
         var instance = ctor.Invoke(null);
         return (ISourceOutput)instance;
-    }
-    
-    
-    
-    private readonly struct SourceOutputContext : ISourceOutputContext
-    {
-        public required Project Project { get; init; }
-    
-        public required CancellationToken CancellationToken { get; init; }
-        
-        public required ConcurrentBag<SourceFile> Files { get; init; }
-        
-        public required ConcurrentBag<Error> Errors { get; init; }
-
-        public void AddSource(SourceFile file) => Files.Add(file);
-
-        public void AddError(Error error) => Errors.Add(error);
     }
 }

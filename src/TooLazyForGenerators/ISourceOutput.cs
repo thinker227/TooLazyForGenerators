@@ -13,5 +13,5 @@ public interface ISourceOutput
     /// </summary>
     /// <param name="ctx">A context object which provides additional information
     /// as well as methods to register output.</param>
-    Task GetSource(ISourceOutputContext ctx);
+    Task GetSource(SourceOutputContext ctx);
 }
