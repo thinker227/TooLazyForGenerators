@@ -66,6 +66,9 @@ public sealed class CodeStringBuilder
     /// </summary>
     public CodeStringBuilder() : this(DefaultIndentation, Environment.NewLine) {}
 
+    /// <summary>
+    /// Builds the string from the builder.
+    /// </summary>
     public override string ToString() =>
         builder.ToString();
 
