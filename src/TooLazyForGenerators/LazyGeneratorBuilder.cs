@@ -157,16 +157,14 @@ public sealed class LazyGeneratorBuilder
         pipelineSteps.Add(pipelineStep);
         return this;
     }
-    
+
     /// <summary>
     /// Builds the generator.
     /// </summary>
-    public LazyGenerator Build() => new()
-    {
-        ProjectFiles = projectFiles,
-        Outputs = outputs,
-        PipelineSteps = pipelineSteps,
-        CancellationToken = CancellationToken,
-        Services = Services.BuildServiceProvider()
-    };
+    public LazyGenerator Build() => new(
+        projectFiles,
+        outputs,
+        pipelineSteps,
+        CancellationToken,
+        Services.BuildServiceProvider());
 }

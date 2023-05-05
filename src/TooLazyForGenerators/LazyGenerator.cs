@@ -11,25 +11,42 @@ namespace TooLazyForGenerators;
 /// </summary>
 public sealed class LazyGenerator 
 {
-    public required IReadOnlyCollection<FileInfo> ProjectFiles { get; init; }
+    private readonly IReadOnlyCollection<FileInfo> projectFiles;
     
-    public required IReadOnlyCollection<Type> Outputs { get; init; }
+    private readonly IReadOnlyCollection<Type> outputs;
     
-    public required IReadOnlyList<PipelineStep> PipelineSteps { get; init; }
+    private readonly IReadOnlyList<PipelineStep> ripelineSteps;
 
-    public required CancellationToken CancellationToken { get; init; }
+    private readonly CancellationToken cancellationToken;
     
-    public required IServiceProvider Services { get; init; }
+    private readonly IServiceProvider services;
+
+    /// <summary>
+    /// Initializes a new <see cref="LazyGenerator"/> instance.
+    /// </summary>
+    /// <param name="projectFiles">The project files the generator targets.</param>
+    /// <param name="outputs">The output types implementing <see cref="ISourceOutput"/> the generator will call.</param>
+    /// <param name="ripelineSteps">The steps of the generator pipeline.</param>
+    /// <param name="cancellationToken">The cancellation token for the generator.</param>
+    /// <param name="services">The services for the generator.</param>
+    public LazyGenerator(IReadOnlyCollection<FileInfo> projectFiles, IReadOnlyCollection<Type> outputs, IReadOnlyList<PipelineStep> ripelineSteps, CancellationToken cancellationToken, IServiceProvider services)
+    {
+        this.projectFiles = projectFiles;
+        this.outputs = outputs;
+        this.ripelineSteps = ripelineSteps;
+        this.cancellationToken = cancellationToken;
+        this.services = services;
+    }
 
     /// <summary>
     /// Runs the generator.
     /// </summary>
     /// <returns>The output from the generator.</returns>
-    public async Task<IGeneratorOutput> Run(CancellationToken cancellationToken = default)
+    public async Task<IGeneratorOutput> Run()
     {
         var workspace = WorkspaceUtils.CreateWorkspace();
 
-        var results = await Task.WhenAll(ProjectFiles
+        var results = await Task.WhenAll(projectFiles
             .Select(file => HandleProject(workspace, file)));
 
         return new GeneratorOutput(
@@ -44,19 +61,19 @@ public sealed class LazyGenerator
         var files = new ConcurrentBag<SourceFile>();
         var errors = new ConcurrentBag<Error>();
 
-        using var serviceScope = Services.CreateScope();
+        using var serviceScope = services.CreateScope();
         
         var runner = new GeneratorOutputRunner()
         {
-            PipelineSteps = PipelineSteps,
+            PipelineSteps = ripelineSteps,
             Files = files,
             Errors = errors,
             Project = project,
-            CancellationToken = CancellationToken,
+            CancellationToken = cancellationToken,
             ServiceScope = serviceScope
         };
 
-        await Task.WhenAll(Outputs
+        await Task.WhenAll(outputs
             .Select(type => runner.Run(type)));
 
         return new(
@@ -69,7 +86,7 @@ public sealed class LazyGenerator
     private Task<Project> GetProject(MSBuildWorkspace workspace, FileInfo projectFile) =>
         workspace.OpenProjectAsync(
             projectFilePath: projectFile.FullName,
-            cancellationToken: CancellationToken);
+            cancellationToken: cancellationToken);
 
     
 
