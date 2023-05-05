@@ -43,14 +43,14 @@ public sealed class LazyGenerator
     /// Runs the generator.
     /// </summary>
     /// <returns>The output from the generator.</returns>
-    public async Task<IGeneratorOutput> Run()
+    public async Task<GeneratorOutput> Run()
     {
         var workspace = WorkspaceUtils.CreateWorkspace();
 
         var results = await Task.WhenAll(projectFiles
             .Select(file => HandleProject(workspace, file)));
 
-        return new GeneratorOutput(
+        return new(
             results.SelectMany(r => r.Files).ToArray(),
             results.SelectMany(r => r.Errors).ToArray(),
             workspace);
@@ -92,14 +92,4 @@ public sealed class LazyGenerator
     private readonly record struct ProjectResult(
         IReadOnlyCollection<ProjectSourceFile> Files,
         IReadOnlyCollection<Error> Errors);
-
-    private readonly record struct GeneratorOutput(
-        IReadOnlyCollection<ProjectSourceFile> Files,
-        IReadOnlyCollection<Error> Errors,
-        MSBuildWorkspace Workspace) : IGeneratorOutput
-    {
-        Workspace IGeneratorOutput.Workspace => Workspace;
-
-        public void Dispose() => Workspace.Dispose();
-    }
 }

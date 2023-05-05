@@ -4,20 +4,27 @@ using Microsoft.CodeAnalysis.Text;
 namespace TooLazyForGenerators;
 
 /// <summary>
-/// Extensions for <see cref="IGeneratorOutput"/>.
+/// The output of a generator
 /// </summary>
-public static class GeneratorOutputExtensions
+/// <param name="Files">The files the produced by the generator.</param>
+/// <param name="Errors">The errors produced by the generator.</param>
+/// <param name="Workspace">The <see cref="Microsoft.CodeAnalysis.Workspace"/>
+/// by which projects handled by the generator are managed.</param>
+public readonly record struct GeneratorOutput(
+    IReadOnlyCollection<ProjectSourceFile> Files,
+    IReadOnlyCollection<Error> Errors,
+    Workspace Workspace) : IDisposable
 {
+    public void Dispose() => Workspace.Dispose();
+    
     /// <summary>
-    /// Returns the files of a <see cref="IGeneratorOutput"/> as a dictionary of projects and files.
+    /// Returns the files of the output as a dictionary of projects and files.
     /// </summary>
-    /// <param name="output">The source output.</param>
-    public static IReadOnlyDictionary<Project, IReadOnlyCollection<SourceFile>> FilesAsDictionary(
-        this IGeneratorOutput output)
+    public IReadOnlyDictionary<Project, IReadOnlyCollection<SourceFile>> FilesAsDictionary()
     {
         var result = new Dictionary<Project, IReadOnlyCollection<SourceFile>>();
 
-        foreach (var file in output.Files)
+        foreach (var file in Files)
         {
             if (!result.TryGetValue(file.Project, out var files))
             {
@@ -33,35 +40,31 @@ public static class GeneratorOutputExtensions
     }
     
     /// <summary>
-    /// Writes the output of a <see cref="IGeneratorOutput"/> to disk and returns
-    /// a status code depending on whether the output was successful or not.
+    /// Writes the output to disk and returns a status code
+    /// depending on whether the output was successful or not.
     /// </summary>
-    /// <param name="output">The generator output.</param>
     /// <param name="getFolders">A function to get the folders for a file.
     /// If not specified then all files will be placed into a
     /// folder called .generated in the root of the project.</param>
-    public static int WriteAndReturn(
-        this IGeneratorOutput output,
+    public int WriteAndReturn(
         Func<SourceFile, IEnumerable<string>>? getFolders = null)
     {
-        output.Write(getFolders);
-        return output.Return();
+        Write(getFolders);
+        return Return();
     }
 
     /// <summary>
-    /// Writes the output of a <see cref="IGeneratorOutput"/> to disk.
+    /// Writes the output to disk.
     /// </summary>
-    /// <param name="output">The generator output.</param>
     /// <param name="getFolders">A function to get the folders for a file.
     /// If not specified then all files will be placed into a
     /// folder called .generated in the root of the project.</param>
-    public static void Write(
-        this IGeneratorOutput output,
+    public void Write(
         Func<SourceFile, IEnumerable<string>>? getFolders = null)
     {
         getFolders ??= GetDefaultFolders;
         
-        var solutions = GetSolutionsDictionary(output.Files);
+        var solutions = GetSolutionsDictionary(Files);
 
         foreach (var (solution, projects) in solutions)
         {
@@ -71,10 +74,10 @@ public static class GeneratorOutputExtensions
 
     private static readonly string[] defaultFolders = { ".generated" };
 
-    private static IEnumerable<string> GetDefaultFolders(SourceFile _) =>
+    private IEnumerable<string> GetDefaultFolders(SourceFile _) =>
         defaultFolders;
 
-    private static Dictionary<Solution, Dictionary<Project, List<SourceFile>>> GetSolutionsDictionary(
+    private Dictionary<Solution, Dictionary<Project, List<SourceFile>>> GetSolutionsDictionary(
         IEnumerable<ProjectSourceFile> outputFiles)
     {
         var solutions = new Dictionary<Solution, Dictionary<Project, List<SourceFile>>>();
@@ -101,7 +104,7 @@ public static class GeneratorOutputExtensions
         return solutions;
     }
 
-    private static void WriteToSolution(
+    private void WriteToSolution(
         Solution solution,
         Dictionary<Project, List<SourceFile>> projects,
         Func<SourceFile, IEnumerable<string>> getFolders)
@@ -125,7 +128,7 @@ public static class GeneratorOutputExtensions
         }
     }
 
-    private static Project AddFilesToProject(
+    private Project AddFilesToProject(
         Project project,
         IEnumerable<SourceFile> files,
         Func<SourceFile, IEnumerable<string>> getFolders)
@@ -144,11 +147,19 @@ public static class GeneratorOutputExtensions
     }
 
     /// <summary>
-    /// Returns a status code depending on whether the output was successful or not.
+    /// Returns a status code depending on whether the output is successful or not.
     /// </summary>
-    /// <param name="output">The generator output.</param>
-    public static int Return(this IGeneratorOutput output) =>
-        output.Errors.Count == 0
+    public int Return() =>
+        Errors.Count == 0
             ? 0
             : 1;
 }
+
+/// <summary>
+/// A a source file attached to a project. 
+/// </summary>
+/// <param name="Project">The project of the file.</param>
+/// <param name="File">The source file.</param>
+public readonly record struct ProjectSourceFile(
+    Project Project,
+    SourceFile File);
