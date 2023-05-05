@@ -1,14 +1,21 @@
 ﻿namespace TooLazyForGenerators.Text;
 
+internal readonly ref struct SpanLineEnumerable
+{
+    private readonly ReadOnlySpan<char> span;
+
+    public SpanLineEnumerable(ReadOnlySpan<char> span) => this.span = span;
+
+    public SpanLineEnumerator GetEnumerator() => new(span);
+}
+
 // Adapted from source:
 // https://source.dot.net/#System.Private.CoreLib/src/libraries/System.Private.CoreLib/src/System/Text/SpanLineEnumerator.cs
-
 /// <summary>
 /// Enumerates the lines of a <see cref="ReadOnlySpan{Char}"/>.
 /// </summary>
 internal ref struct SpanLineEnumerator
 {
-    private const string NewlineChars = "\n\r\f\u0085\u2028\u2029";
     private ReadOnlySpan<char> remaining;
     private ReadOnlySpan<char> current;
     private bool isEnumeratorActive;
@@ -26,11 +33,6 @@ internal ref struct SpanLineEnumerator
     public ReadOnlySpan<char> Current => current;
 
     /// <summary>
-    /// Returns this instance as an enumerator.
-    /// </summary>
-    public SpanLineEnumerator GetEnumerator() => this;
-
-    /// <summary>
     /// Advances the enumerator to the next line of the span.
     /// </summary>
     /// <returns>
@@ -46,7 +48,7 @@ internal ref struct SpanLineEnumerator
 
         var remaining = this.remaining;
 
-        var idx = remaining.IndexOfAny(NewlineChars.AsSpan());
+        var idx = remaining.IndexOfAny(NewlineUtilities.NewlineChars.AsSpan());
 
         if ((uint)idx < (uint)remaining.Length)
         {
@@ -78,5 +80,5 @@ internal ref struct SpanLineEnumerator
 
 internal static class SpanExtensions
 {
-    public static SpanLineEnumerator EnumerateLines(this ReadOnlySpan<char> span) => new(span);
+    public static SpanLineEnumerable EnumerateLines(this ReadOnlySpan<char> span) => new(span);
 }
