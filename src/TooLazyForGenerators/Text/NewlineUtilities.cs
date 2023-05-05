@@ -24,11 +24,26 @@ internal static class NewlineUtilities
         
         var lastChar = builder[^1];
         
-        for (var i = 0; i < NewlineChars.Length; i++)
+        foreach (var t in NewlineChars)
         {
-            if (lastChar == NewlineChars[i]) return true;
+            if (lastChar == t) return true;
         }
 
         return false;
     }
+
+    public static bool IsOnlyNewlines(this ReadOnlySpan<char> span)
+    {
+        var newlines = NewlineChars.AsSpan();
+        
+        foreach (var c in span)
+        {
+            if (newlines.IndexOf(c) == -1) return false;
+        }
+
+        return true;
+    }
+
+    public static bool ContainsNewline(this ReadOnlySpan<char> span) =>
+        span.IndexOfAny(NewlineChars.AsSpan()) != -1;
 }
