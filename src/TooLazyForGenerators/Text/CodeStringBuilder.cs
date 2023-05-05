@@ -216,7 +216,7 @@ public sealed class CodeStringBuilder
     /// <param name="indentationAmount">The amount of indentation levels to indent and unindent by.</param>
     /// <param name="appendNewline">Whether to append a newline at the end of the block.</param>
     /// <returns></returns>
-    public IDisposable IndentedBlock(int indentationAmount = 1, bool appendNewline = true)
+    public IDisposable IndentedBlock(int indentationAmount = 1, bool appendNewline = false)
     {
         Indent(indentationAmount);
         return new Block(this, indentationAmount, appendNewline);
