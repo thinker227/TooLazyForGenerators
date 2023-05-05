@@ -8,27 +8,38 @@ namespace TooLazyForGenerators;
 
 internal sealed class GeneratorOutputRunner
 {
-    public required IReadOnlyList<PipelineStep> PipelineSteps { get; init; }
-    
-    public required ConcurrentBag<SourceFile> Files { get; init; }
-    
-    public required ConcurrentBag<Error> Errors { get; init; }
-    
-    public required Project Project { get; init; }
-    
-    public required CancellationToken CancellationToken { get; init; }
-    
-    public required IServiceScope ServiceScope { get; init; }
-    
+    public readonly IReadOnlyList<PipelineStep> pipelineSteps;
+    public readonly ConcurrentBag<SourceFile> files;
+    public readonly ConcurrentBag<Error> errors;
+    public readonly Project project;
+    public readonly CancellationToken cancellationToken;
+    public readonly IServiceScope serviceScope;
+
+    public GeneratorOutputRunner(
+        IReadOnlyList<PipelineStep> pipelineSteps,
+        ConcurrentBag<SourceFile> files,
+        ConcurrentBag<Error> errors,
+        Project project,
+        CancellationToken cancellationToken,
+        IServiceScope serviceScope)
+    {
+        this.pipelineSteps = pipelineSteps;
+        this.files = files;
+        this.errors = errors;
+        this.project = project;
+        this.cancellationToken = cancellationToken;
+        this.serviceScope = serviceScope;
+    }
+
     public Task Run(Type outputType)
     {
         var ctx = new PipelineContext()
         {
             TargetType = outputType,
             CreateTarget = CreateSourceOutput,
-            Project = Project,
-            CancellationToken = CancellationToken,
-            Services = ServiceScope.ServiceProvider
+            Project = project,
+            CancellationToken = cancellationToken,
+            Services = serviceScope.ServiceProvider
         };
 
         return CallPipelineStep(ctx, 0);
@@ -36,13 +47,13 @@ internal sealed class GeneratorOutputRunner
 
     private Task CallPipelineStep(PipelineContext pipelineContext, int stepIndex)
     {
-        if (stepIndex < PipelineSteps.Count)
-            return PipelineSteps[stepIndex](pipelineContext, newCtx =>
+        if (stepIndex < pipelineSteps.Count)
+            return pipelineSteps[stepIndex](pipelineContext, newCtx =>
                 CallPipelineStep(newCtx, stepIndex + 1));
 
         var creationContext = new TargetCreationContext(pipelineContext.TargetType, pipelineContext.Services);
         var instance = pipelineContext.CreateTarget(creationContext);
-        var outputContext = new SourceOutputContext(pipelineContext.Project, CancellationToken, Files, Errors);
+        var outputContext = new SourceOutputContext(pipelineContext.Project, cancellationToken, files, errors);
         return instance.GetSource(outputContext);
     }
     
