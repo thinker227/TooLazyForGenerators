@@ -6,7 +6,10 @@ using TooLazyForGenerators.Pipelines;
 
 namespace TooLazyForGenerators;
 
-internal sealed class LazyGenerator : ILazyGenerator
+/// <summary>
+/// A generator which takes one or multiple projects and adds source code to them.
+/// </summary>
+public sealed class LazyGenerator 
 {
     public required IReadOnlyCollection<FileInfo> ProjectFiles { get; init; }
     
@@ -18,6 +21,10 @@ internal sealed class LazyGenerator : ILazyGenerator
     
     public required IServiceProvider Services { get; init; }
 
+    /// <summary>
+    /// Runs the generator.
+    /// </summary>
+    /// <returns>The output from the generator.</returns>
     public async Task<IGeneratorOutput> Run(CancellationToken cancellationToken = default)
     {
         var workspace = WorkspaceUtils.CreateWorkspace();

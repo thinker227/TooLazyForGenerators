@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using TooLazyForGenerators.Pipelines;
 
 namespace TooLazyForGenerators.DependencyInjection;
 
@@ -9,9 +8,8 @@ public static class DependencyInjectionExtensions
     /// Adds dependency injection to the generator pipeline.
     /// </summary>
     /// <param name="builder">The source builder.</param>
-    public static TBuilder UsingDependencyInjection<TBuilder>(
-        this TBuilder builder)
-        where TBuilder : IPipelineBuilder
+    public static LazyGeneratorBuilder UsingDependencyInjection(
+        this LazyGeneratorBuilder builder)
     {
         builder.Using((ctx, next) =>
         {
