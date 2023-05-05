@@ -13,7 +13,7 @@ public sealed class LazyGenerator
 {
     private readonly IReadOnlyCollection<FileInfo> projectFiles;
     private readonly IReadOnlyCollection<Type> outputs;
-    private readonly IReadOnlyList<PipelineStep> ripelineSteps;
+    private readonly IReadOnlyList<PipelineStep> pipelineSteps;
     private readonly CancellationToken cancellationToken;
     private readonly IServiceProvider services;
 
@@ -22,19 +22,19 @@ public sealed class LazyGenerator
     /// </summary>
     /// <param name="projectFiles">The project files the generator targets.</param>
     /// <param name="outputs">The output types implementing <see cref="ISourceOutput"/> the generator will call.</param>
-    /// <param name="ripelineSteps">The steps of the generator pipeline.</param>
+    /// <param name="pipelineSteps">The steps of the generator pipeline.</param>
     /// <param name="cancellationToken">The cancellation token for the generator.</param>
     /// <param name="services">The services for the generator.</param>
     public LazyGenerator(
         IReadOnlyCollection<FileInfo> projectFiles,
         IReadOnlyCollection<Type> outputs,
-        IReadOnlyList<PipelineStep> ripelineSteps,
+        IReadOnlyList<PipelineStep> pipelineSteps,
         CancellationToken cancellationToken,
         IServiceProvider services)
     {
         this.projectFiles = projectFiles;
         this.outputs = outputs;
-        this.ripelineSteps = ripelineSteps;
+        this.pipelineSteps = pipelineSteps;
         this.cancellationToken = cancellationToken;
         this.services = services;
     }
@@ -64,7 +64,7 @@ public sealed class LazyGenerator
 
         using var serviceScope = services.CreateScope();
         
-        var runner = new GeneratorOutputRunner(ripelineSteps, files, errors, project, cancellationToken, serviceScope);
+        var runner = new GeneratorOutputRunner(pipelineSteps, files, errors, project, cancellationToken, serviceScope);
 
         await Task.WhenAll(outputs
             .Select(type => runner.Run(type)));
