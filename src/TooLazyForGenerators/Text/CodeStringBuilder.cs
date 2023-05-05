@@ -241,4 +241,11 @@ public sealed class CodeStringBuilder
             if (appendNewline) builder.AppendLine();
         }
     }
+
+    /// <summary>
+    /// Implicitly converts a <see cref="CodeStringBuilder"/> to a <see cref="string"/>
+    /// by calling <see cref="ToString"/>.
+    /// </summary>
+    /// <param name="builder">The builder to convert.</param>
+    public static implicit operator string(CodeStringBuilder builder) => builder.ToString();
 }
