@@ -136,7 +136,7 @@ public sealed class CodeStringBuilder
         checked
         {
             var newLevel = indentationLevel + amount;
-            if (newLevel <= 0) newLevel = 0;
+            if (newLevel < 0) newLevel = 0;
             indentationLevel = newLevel;
         }
         
