@@ -54,8 +54,8 @@ public sealed class CodeStringBuilder
             nameof(newline));
         
         builder = new();
-        this.Indentation = indentation;
-        this.Newline = newline;
+        Indentation = indentation;
+        Newline = newline;
         indentationLevel = 0;
     }
     
