@@ -41,6 +41,18 @@ public sealed class CodeStringBuilder
     /// when using <see cref="AppendLine()"/> or <see cref="AppendLine(ReadOnlySpan{char})"/>.</param>
     public CodeStringBuilder(string indentation, string newline)
     {
+        if (indentation.AsSpan().ContainsNewline()) throw new ArgumentException(
+            "Indentation string cannot contain newlines.",
+            nameof(indentation));
+
+            if (string.IsNullOrEmpty(newline)) throw new ArgumentException(
+            "Newline string cannot be null or empty.",
+            nameof(newline));
+        
+        if (!newline.AsSpan().IsOnlyNewlines()) throw new ArgumentException(
+            "Newline string can only consist of newline characters.",
+            nameof(newline));
+        
         builder = new();
         this.Indentation = indentation;
         this.Newline = newline;
