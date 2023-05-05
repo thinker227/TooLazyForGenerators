@@ -9,16 +9,12 @@ namespace TooLazyForGenerators;
 /// <summary>
 /// A generator which takes one or multiple projects and adds source code to them.
 /// </summary>
-public sealed class LazyGenerator 
+public sealed class LazyGenerator
 {
     private readonly IReadOnlyCollection<FileInfo> projectFiles;
-    
     private readonly IReadOnlyCollection<Type> outputs;
-    
     private readonly IReadOnlyList<PipelineStep> ripelineSteps;
-
     private readonly CancellationToken cancellationToken;
-    
     private readonly IServiceProvider services;
 
     /// <summary>
@@ -29,7 +25,12 @@ public sealed class LazyGenerator
     /// <param name="ripelineSteps">The steps of the generator pipeline.</param>
     /// <param name="cancellationToken">The cancellation token for the generator.</param>
     /// <param name="services">The services for the generator.</param>
-    public LazyGenerator(IReadOnlyCollection<FileInfo> projectFiles, IReadOnlyCollection<Type> outputs, IReadOnlyList<PipelineStep> ripelineSteps, CancellationToken cancellationToken, IServiceProvider services)
+    public LazyGenerator(
+        IReadOnlyCollection<FileInfo> projectFiles,
+        IReadOnlyCollection<Type> outputs,
+        IReadOnlyList<PipelineStep> ripelineSteps,
+        CancellationToken cancellationToken,
+        IServiceProvider services)
     {
         this.projectFiles = projectFiles;
         this.outputs = outputs;
@@ -87,9 +88,7 @@ public sealed class LazyGenerator
         workspace.OpenProjectAsync(
             projectFilePath: projectFile.FullName,
             cancellationToken: cancellationToken);
-
     
-
     private readonly record struct ProjectResult(
         IReadOnlyCollection<ProjectSourceFile> Files,
         IReadOnlyCollection<Error> Errors);
