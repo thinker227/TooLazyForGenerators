@@ -8,12 +8,12 @@ namespace TooLazyForGenerators;
 
 internal sealed class GeneratorOutputRunner
 {
-    public readonly IReadOnlyList<PipelineStep> pipelineSteps;
-    public readonly ConcurrentBag<SourceFile> files;
-    public readonly ConcurrentBag<Error> errors;
-    public readonly Project project;
-    public readonly CancellationToken cancellationToken;
-    public readonly IServiceScope serviceScope;
+    private readonly IReadOnlyList<PipelineStep> pipelineSteps;
+    private readonly ConcurrentBag<SourceFile> files;
+    private readonly ConcurrentBag<Error> errors;
+    private readonly Project project;
+    private readonly CancellationToken cancellationToken;
+    private readonly IServiceScope serviceScope;
 
     public GeneratorOutputRunner(
         IReadOnlyList<PipelineStep> pipelineSteps,
