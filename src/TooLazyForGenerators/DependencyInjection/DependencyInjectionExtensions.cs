@@ -13,10 +13,8 @@ public static class DependencyInjectionExtensions
     {
         builder.Using((ctx, next) =>
         {
-            ctx.CreateTarget = creationCtx =>
-                (ISourceOutput)ActivatorUtilities.CreateInstance(
-                    creationCtx.Services,
-                    creationCtx.TargetType);
+            ctx.CreateTarget = (type, services) =>
+                (ISourceOutput)ActivatorUtilities.CreateInstance(services, type);
             
             return next(ctx);
         });

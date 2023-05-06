@@ -29,7 +29,7 @@ public sealed class PipelineContext
     /// <summary>
     /// The function called to create an instance of <see cref="ISourceOutput"/> for the target type.
     /// </summary>
-    public required Func<TargetCreationContext, ISourceOutput> CreateTarget { get; set; }
+    public required Func<Type, IServiceProvider, ISourceOutput> CreateTarget { get; set; }
     
     /// <summary>
     /// The target project.
@@ -44,15 +44,5 @@ public sealed class PipelineContext
     /// <summary>
     /// The services for the generator.
     /// </summary>
-    public required IServiceProvider Services { get; init; }
+    public required IServiceProvider Services { get; set; }
 }
-
-/// <summary>
-/// A context for the creation of an <see cref="ISourceOutput"/>.
-/// </summary>
-/// <param name="TargetType">The target type to create an instance of.
-/// This type always implements <see cref="ISourceOutput"/>.</param>
-/// <param name="Services">The services for the generator.</param>
-public readonly record struct TargetCreationContext(
-    Type TargetType,
-    IServiceProvider Services);

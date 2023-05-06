@@ -51,16 +51,13 @@ internal sealed class GeneratorOutputRunner
             return pipelineSteps[stepIndex](pipelineContext, newCtx =>
                 CallPipelineStep(newCtx, stepIndex + 1));
 
-        var creationContext = new TargetCreationContext(pipelineContext.TargetType, pipelineContext.Services);
-        var instance = pipelineContext.CreateTarget(creationContext);
+        var instance = pipelineContext.CreateTarget(pipelineContext.TargetType, pipelineContext.Services);
         var outputContext = new SourceOutputContext(pipelineContext.Project, cancellationToken, files, errors);
         return instance.GetSource(outputContext);
     }
     
-    private static ISourceOutput CreateSourceOutput(TargetCreationContext ctx)
+    private static ISourceOutput CreateSourceOutput(Type type, IServiceProvider services)
     {
-        var type = ctx.TargetType;
-        
         var ctor = type.GetConstructor(
             BindingFlags.Instance | BindingFlags.Public,
             null,
