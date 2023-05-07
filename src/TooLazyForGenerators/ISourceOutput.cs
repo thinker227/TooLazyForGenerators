@@ -13,5 +13,8 @@ public interface ISourceOutput
     /// </summary>
     /// <param name="ctx">A context object which provides additional information
     /// as well as methods to register output.</param>
+    [Obsolete("Removing this later.")]
     Task GetSource(SourceOutputContext ctx);
+
+    void Initialize(NewSourceOutputContext ctx);
 }

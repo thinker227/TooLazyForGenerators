@@ -12,6 +12,7 @@ public sealed class LazyGeneratorBuilder
     private readonly List<FileInfo> projectFiles = new();
     private readonly List<Type> outputs = new();
     private readonly List<PipelineStep> pipelineSteps = new();
+    private ExecutionOptions options = new();
     
     /// <summary>
     /// The cancellation token for the builder.
@@ -159,6 +160,26 @@ public sealed class LazyGeneratorBuilder
     }
 
     /// <summary>
+    /// Disables concurrent execution of generators.
+    /// This can be useful for debugging purposes, but it is recommended to leave this enabled for live generators.
+    /// </summary>
+    public LazyGeneratorBuilder DisableConcurrentExecution()
+    {
+        options.RunConcurrently = false;
+        return this;
+    }
+
+    // TODO: Clarify whether this means only source-generated code, or generated code in general.
+    /// <summary>
+    /// Enables generation for generated code.
+    /// </summary>
+    public LazyGeneratorBuilder EnableExecutionForGeneratedCode()
+    {
+        options.RunForGeneratedCode = true;
+        return this;
+    }
+
+    /// <summary>
     /// Builds the generator.
     /// </summary>
     public LazyGenerator Build() => new(
@@ -166,5 +187,6 @@ public sealed class LazyGeneratorBuilder
         outputs,
         pipelineSteps,
         CancellationToken,
-        Services.BuildServiceProvider());
+        Services.BuildServiceProvider(),
+        options);
 }

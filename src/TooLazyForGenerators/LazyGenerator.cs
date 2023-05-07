@@ -1,5 +1,7 @@
 ﻿using System.Collections.Concurrent;
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.MSBuild;
 using Microsoft.Extensions.DependencyInjection;
 using TooLazyForGenerators.Pipelines;
@@ -16,6 +18,7 @@ public sealed class LazyGenerator
     private readonly IReadOnlyList<PipelineStep> pipelineSteps;
     private readonly CancellationToken cancellationToken;
     private readonly IServiceProvider services;
+    private readonly ExecutionOptions options;
 
     /// <summary>
     /// Initializes a new <see cref="LazyGenerator"/> instance.
@@ -25,18 +28,21 @@ public sealed class LazyGenerator
     /// <param name="pipelineSteps">The steps of the generator pipeline.</param>
     /// <param name="cancellationToken">The cancellation token for the generator.</param>
     /// <param name="services">The services for the generator.</param>
+    /// <param name="options">The execution options for the generator.</param>
     public LazyGenerator(
         IReadOnlyCollection<FileInfo> projectFiles,
         IReadOnlyCollection<Type> outputs,
         IReadOnlyList<PipelineStep> pipelineSteps,
         CancellationToken cancellationToken,
-        IServiceProvider services)
+        IServiceProvider services,
+        ExecutionOptions options)
     {
         this.projectFiles = projectFiles;
         this.outputs = outputs;
         this.pipelineSteps = pipelineSteps;
         this.cancellationToken = cancellationToken;
         this.services = services;
+        this.options = options;
     }
 
     /// <summary>
@@ -59,16 +65,36 @@ public sealed class LazyGenerator
     private async Task<ProjectResult> HandleProject(MSBuildWorkspace workspace, FileInfo projectFile)
     {
         var project = await GetProject(workspace, projectFile);
+        if (!project.SupportsCompilation) throw new InvalidOperationException(
+            $"Project {project.Name} does not support compilation.");
+        
+        var compilation = (await project.GetCompilationAsync(cancellationToken))!;
+
+        using var serviceScope = services.CreateScope();
+
         var files = new ConcurrentBag<SourceFile>();
         var errors = new ConcurrentBag<Error>();
 
-        using var serviceScope = services.CreateScope();
+        // The analyzer lifetime is no longer than the execution of this method.
+        // ReSharper disable once AccessToDisposedClosure
+        var analyzers = outputs
+            .Select(type => (DiagnosticAnalyzer)new GeneratorAnalyzerWrapper(
+                type,
+                serviceScope.ServiceProvider,
+                options,
+                files,
+                errors))
+            .ToImmutableArray();
+
+        // TODO: Supply options to WithAnalyzers.
+        var compilationWithAnalyzers = compilation.WithAnalyzers(
+            analyzers,
+            cancellationToken: cancellationToken);
         
-        var runner = new ProjectRunner(pipelineSteps, files, errors, project, cancellationToken, serviceScope);
-
-        await Task.WhenAll(outputs
-            .Select(type => runner.Run(type)));
-
+        // We don't actually care about the result here,
+        // because the analyzers aren't supposed to produce any diagnostics.
+        await compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync(cancellationToken);
+        
         return new(
             files
                 .Select(file => new ProjectSourceFile(project, file))
