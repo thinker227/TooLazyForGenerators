@@ -13,8 +13,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExampleApp", "samples\Examp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MinimalGenerator", "samples\MinimalGenerator\MinimalGenerator.csproj", "{6ED02D9D-E8E8-474A-A9CE-236AE2ED248A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PipelineGenerator", "samples\PipelineGenerator\PipelineGenerator.csproj", "{8B060197-9635-41A6-B24C-523C3CF757F2}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,15 +34,10 @@ Global
 		{6ED02D9D-E8E8-474A-A9CE-236AE2ED248A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6ED02D9D-E8E8-474A-A9CE-236AE2ED248A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6ED02D9D-E8E8-474A-A9CE-236AE2ED248A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8B060197-9635-41A6-B24C-523C3CF757F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8B060197-9635-41A6-B24C-523C3CF757F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8B060197-9635-41A6-B24C-523C3CF757F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8B060197-9635-41A6-B24C-523C3CF757F2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{51A2F432-22C1-4E63-80C8-19DE71C34BB4} = {6F3258DE-4EB2-4E6F-A142-AAB2951BE3B9}
 		{B8C88317-C70D-4A28-A3C0-6822E9566695} = {2D70A16B-398C-4D99-A6A5-0B300360753F}
 		{6ED02D9D-E8E8-474A-A9CE-236AE2ED248A} = {2D70A16B-398C-4D99-A6A5-0B300360753F}
-		{8B060197-9635-41A6-B24C-523C3CF757F2} = {2D70A16B-398C-4D99-A6A5-0B300360753F}
 	EndGlobalSection
 EndGlobal

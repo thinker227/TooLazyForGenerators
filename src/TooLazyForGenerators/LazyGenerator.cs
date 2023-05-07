@@ -4,7 +4,6 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.MSBuild;
 using Microsoft.Extensions.DependencyInjection;
-using TooLazyForGenerators.Pipelines;
 
 namespace TooLazyForGenerators;
 
@@ -15,7 +14,6 @@ public sealed class LazyGenerator
 {
     private readonly IReadOnlyCollection<FileInfo> projectFiles;
     private readonly IReadOnlyCollection<Type> outputs;
-    private readonly IReadOnlyList<PipelineStep> pipelineSteps;
     private readonly CancellationToken cancellationToken;
     private readonly IServiceProvider services;
     private readonly ExecutionOptions options;
@@ -25,21 +23,18 @@ public sealed class LazyGenerator
     /// </summary>
     /// <param name="projectFiles">The project files the generator targets.</param>
     /// <param name="outputs">The output types implementing <see cref="ISourceOutput"/> the generator will call.</param>
-    /// <param name="pipelineSteps">The steps of the generator pipeline.</param>
     /// <param name="cancellationToken">The cancellation token for the generator.</param>
     /// <param name="services">The services for the generator.</param>
     /// <param name="options">The execution options for the generator.</param>
     public LazyGenerator(
         IReadOnlyCollection<FileInfo> projectFiles,
         IReadOnlyCollection<Type> outputs,
-        IReadOnlyList<PipelineStep> pipelineSteps,
         CancellationToken cancellationToken,
         IServiceProvider services,
         ExecutionOptions options)
     {
         this.projectFiles = projectFiles;
         this.outputs = outputs;
-        this.pipelineSteps = pipelineSteps;
         this.cancellationToken = cancellationToken;
         this.services = services;
         this.options = options;

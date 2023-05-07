@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
-using TooLazyForGenerators.Pipelines;
 
 namespace TooLazyForGenerators;
 
@@ -11,7 +10,6 @@ public sealed class LazyGeneratorBuilder
 {
     private readonly List<FileInfo> projectFiles = new();
     private readonly List<Type> outputs = new();
-    private readonly List<PipelineStep> pipelineSteps = new();
     private ExecutionOptions options = new();
     
     /// <summary>
@@ -160,16 +158,6 @@ public sealed class LazyGeneratorBuilder
     }
 
     /// <summary>
-    /// Adds a pipeline step the generator pipeline should use.
-    /// </summary>
-    /// <param name="pipelineStep">The step to add.</param>
-    public LazyGeneratorBuilder Using(PipelineStep pipelineStep)
-    {
-        pipelineSteps.Add(pipelineStep);
-        return this;
-    }
-
-    /// <summary>
     /// Disables concurrent execution of generators.
     /// This can be useful for debugging purposes, but it is recommended to leave this enabled for live generators.
     /// </summary>
@@ -195,7 +183,6 @@ public sealed class LazyGeneratorBuilder
     public LazyGenerator Build() => new(
         projectFiles,
         outputs,
-        pipelineSteps,
         CancellationToken,
         Services.BuildServiceProvider(),
         options);
