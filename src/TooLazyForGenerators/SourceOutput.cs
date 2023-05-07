@@ -7,6 +7,10 @@ namespace TooLazyForGenerators;
 /// The base class for source outputs generating source files and errors.
 /// </summary>
 /// <remarks>
+/// Use the <see cref="AddSource(SourceFile)"/> and <see cref="AddError(Error)"/> methods
+/// and their corresponding overloads to add source files and errors.
+/// <br/>
+/// <br/>
 /// Constructor dependency injection is supported on types inheriting from <see cref="SourceOutput"/>.
 /// If a constructor with one or more parameters is present, the services registered using
 /// <see cref="LazyGeneratorBuilder.Services"/> will be used to call the constructor.
