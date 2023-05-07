@@ -75,8 +75,6 @@ public sealed class LazyGenerator
         SourceOutput CreateSourceOutput(Type type) =>
             (SourceOutput)ActivatorUtilities.CreateInstance(serviceScope.ServiceProvider, type);
 
-        // The analyzer lifetime is no longer than the execution of this method.
-        // ReSharper disable once AccessToDisposedClosure
         var analyzers = outputs
             .Select(type =>
             {
