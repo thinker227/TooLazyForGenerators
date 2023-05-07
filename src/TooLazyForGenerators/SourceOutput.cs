@@ -31,7 +31,7 @@ public abstract class SourceOutput
     /// <summary>
     /// Adds a source file to the generator output.
     /// </summary>
-    /// <param name="source">The literal source code contents of the file..</param>
+    /// <param name="source">The literal source code contents of the file.</param>
     /// <param name="fileName">The name of the file.</param>
     protected void AddSource(string source, string fileName) =>
         AddSource(new(source, fileName));
