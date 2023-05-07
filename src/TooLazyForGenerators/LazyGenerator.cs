@@ -77,17 +77,24 @@ public sealed class LazyGenerator
 
         // ISourceOutput instances don't have lifetimes longer than this method.
         // ReSharper disable once AccessToDisposedClosure
-        ISourceOutput CreateSourceOutput(Type type) =>
-            (ISourceOutput)ActivatorUtilities.CreateInstance(serviceScope.ServiceProvider, type);
+        SourceOutput CreateSourceOutput(Type type) =>
+            (SourceOutput)ActivatorUtilities.CreateInstance(serviceScope.ServiceProvider, type);
 
         // The analyzer lifetime is no longer than the execution of this method.
         // ReSharper disable once AccessToDisposedClosure
         var analyzers = outputs
-            .Select(type => (DiagnosticAnalyzer)new GeneratorAnalyzerWrapper(
-                CreateSourceOutput(type),
-                options,
-                files,
-                errors))
+            .Select(type =>
+            {
+                var sourceOutput = CreateSourceOutput(type);
+                sourceOutput.Files = files;
+                sourceOutput.Errors = errors;
+                
+                return (DiagnosticAnalyzer)new GeneratorAnalyzerWrapper(
+                    sourceOutput,
+                    options,
+                    files,
+                    errors);
+            })
             .ToImmutableArray();
 
         // TODO: Supply options to WithAnalyzers.

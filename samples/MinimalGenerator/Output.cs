@@ -2,10 +2,10 @@ using TooLazyForGenerators;
 
 namespace MinimalGenerator;
 
-public sealed class Output : ISourceOutput
+public sealed class Output : SourceOutput
 {
-    public void Initialize(SourceOutputContext ctx)
+    public override void Initialize(SourceOutputContext ctx)
     {
-        // TODO: Add decent example code.
+        // TODO: Add decent example code. 
     }
 }

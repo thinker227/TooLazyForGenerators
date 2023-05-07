@@ -10,18 +10,8 @@ namespace TooLazyForGenerators;
 public readonly struct SourceOutputContext
 {
     private readonly AnalysisContext context;
-    private readonly ConcurrentBag<SourceFile> files;
-    private readonly ConcurrentBag<Error> errors;
     
-    public SourceOutputContext(
-        AnalysisContext context,
-        ConcurrentBag<SourceFile> files,
-        ConcurrentBag<Error> errors)
-    {
-        this.context = context;
-        this.files = files;
-        this.errors = errors;
-    }
+    public SourceOutputContext(AnalysisContext context) => this.context = context;
 
     public SourceOutputContext ForCompilation(Action<Compilation> action)
     {

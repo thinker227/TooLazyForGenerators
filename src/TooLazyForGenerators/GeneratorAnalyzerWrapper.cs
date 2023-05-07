@@ -8,13 +8,13 @@ namespace TooLazyForGenerators;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class GeneratorAnalyzerWrapper : DiagnosticAnalyzer
 {
-    private readonly ISourceOutput sourceOutput;
+    private readonly SourceOutput sourceOutput;
     private readonly ExecutionOptions options;
     private readonly ConcurrentBag<SourceFile> files;
     private readonly ConcurrentBag<Error> errors;
 
     public GeneratorAnalyzerWrapper(
-        ISourceOutput sourceOutput,
+        SourceOutput sourceOutput,
         ExecutionOptions options,
         ConcurrentBag<SourceFile> files,
         ConcurrentBag<Error> errors)
@@ -46,7 +46,7 @@ public sealed class GeneratorAnalyzerWrapper : DiagnosticAnalyzer
                 ? GeneratedCodeAnalysisFlags.Analyze
                 : GeneratedCodeAnalysisFlags.None);
 
-        var sourceOutputContext = new SourceOutputContext(context, files, errors);
+        var sourceOutputContext = new SourceOutputContext(context);
         
         sourceOutput.Initialize(sourceOutputContext);
     }
