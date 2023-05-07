@@ -4,7 +4,7 @@ namespace MinimalGenerator;
 
 public sealed class Output : ISourceOutput
 {
-    public void Initialize(NewSourceOutputContext ctx)
+    public void Initialize(SourceOutputContext ctx)
     {
         // TODO: Add decent example code.
     }

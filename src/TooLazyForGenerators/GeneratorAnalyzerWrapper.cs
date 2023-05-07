@@ -46,7 +46,7 @@ public sealed class GeneratorAnalyzerWrapper : DiagnosticAnalyzer
                 ? GeneratedCodeAnalysisFlags.Analyze
                 : GeneratedCodeAnalysisFlags.None);
 
-        var sourceOutputContext = new NewSourceOutputContext(context, files, errors);
+        var sourceOutputContext = new SourceOutputContext(context, files, errors);
         
         sourceOutput.Initialize(sourceOutputContext);
     }

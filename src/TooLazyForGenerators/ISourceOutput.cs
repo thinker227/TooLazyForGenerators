@@ -14,5 +14,5 @@ public interface ISourceOutput
     /// on specific kinds of compilation entities, then use  
     /// </summary>
     /// <param name="ctx"></param>
-    void Initialize(NewSourceOutputContext ctx);
+    void Initialize(SourceOutputContext ctx);
 }

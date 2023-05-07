@@ -6,58 +6,14 @@ using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace TooLazyForGenerators;
 
-/// <summary>
-/// A context for an <see cref="ISourceOutput"/>.
-/// </summary>
-public readonly struct SourceOutputContext : ISourceAndErrors
-{
-    private readonly ConcurrentBag<SourceFile> files;
-    private readonly ConcurrentBag<Error> errors;
-    
-    /// <summary>
-    /// The project which is being targeted.
-    /// </summary>
-    public Project Project { get; }
-    
-    /// <summary>
-    /// The cancellation token for the operation.
-    /// </summary>
-    public CancellationToken CancellationToken { get; }
-
-    /// <summary>
-    /// Initializes a new <see cref="SourceOutputContext"/> instance.
-    /// </summary>
-    /// <param name="project">The project which is being targeted.</param>
-    /// <param name="cancellationToken">The cancellation token for the operation.</param>
-    /// <param name="files">A collection of source files to add files to.</param>
-    /// <param name="errors">A collection of errors to add errors to.</param>
-    public SourceOutputContext(
-        Project project,
-        CancellationToken cancellationToken,
-        ConcurrentBag<SourceFile> files,
-        ConcurrentBag<Error> errors)
-    {
-        this.files = files;
-        this.errors = errors;
-        Project = project;
-        CancellationToken = cancellationToken;
-    }
-
-    public void AddSource(SourceFile file) =>
-        files.Add(file);
-
-    public void AddError(Error error) =>
-        errors.Add(error);
-}
-
 // TODO: Rename this to just SourceOutputContext once the old SourceOutputContext is removed.
-public readonly struct NewSourceOutputContext
+public readonly struct SourceOutputContext
 {
     private readonly AnalysisContext context;
     private readonly ConcurrentBag<SourceFile> files;
     private readonly ConcurrentBag<Error> errors;
     
-    public NewSourceOutputContext(
+    public SourceOutputContext(
         AnalysisContext context,
         ConcurrentBag<SourceFile> files,
         ConcurrentBag<Error> errors)
@@ -67,14 +23,14 @@ public readonly struct NewSourceOutputContext
         this.errors = errors;
     }
 
-    public NewSourceOutputContext ForCompilation(Action<Compilation> action)
+    public SourceOutputContext ForCompilation(Action<Compilation> action)
     {
         context.RegisterCompilationAction(ctx => action(ctx.Compilation));
         
         return this;
     }
 
-    public NewSourceOutputContext ForSyntaxTree(Action<SyntaxTreeContext> action)
+    public SourceOutputContext ForSyntaxTree(Action<SyntaxTreeContext> action)
     {
         context.RegisterSyntaxTreeAction(ctx => action(new(
             ctx.Tree,
@@ -83,7 +39,7 @@ public readonly struct NewSourceOutputContext
         return this;
     }
 
-    public NewSourceOutputContext ForSemanticModel(Action<SemanticModelContext> action)
+    public SourceOutputContext ForSemanticModel(Action<SemanticModelContext> action)
     {
         context.RegisterSemanticModelAction(ctx => action(new(
             ctx.SemanticModel,
@@ -92,7 +48,7 @@ public readonly struct NewSourceOutputContext
         return this;
     }
 
-    public NewSourceOutputContext ForSyntaxNode(Action<SyntaxNodeContext> action, ImmutableArray<SyntaxKind> syntaxKinds)
+    public SourceOutputContext ForSyntaxNode(Action<SyntaxNodeContext> action, ImmutableArray<SyntaxKind> syntaxKinds)
     {
         context.RegisterSyntaxNodeAction(
             ctx => action(new(
@@ -106,7 +62,7 @@ public readonly struct NewSourceOutputContext
         return this;
     }
 
-    public NewSourceOutputContext ForSymbol(Action<SymbolContext> action, ImmutableArray<SymbolKind> symbolKinds)
+    public SourceOutputContext ForSymbol(Action<SymbolContext> action, ImmutableArray<SymbolKind> symbolKinds)
     {
         context.RegisterSymbolAction(ctx => action(new(
                 ctx.Symbol,
@@ -117,7 +73,7 @@ public readonly struct NewSourceOutputContext
         return this;
     }
 
-    public NewSourceOutputContext ForOperation(Action<OperationContext> action, ImmutableArray<OperationKind> operationKinds)
+    public SourceOutputContext ForOperation(Action<OperationContext> action, ImmutableArray<OperationKind> operationKinds)
     {
         context.RegisterOperationAction(ctx => action(new(
                 ctx.Operation,
@@ -129,7 +85,7 @@ public readonly struct NewSourceOutputContext
         return this;
     }
 
-    public NewSourceOutputContext ForCodeBlock(Action<BlockContext> action)
+    public SourceOutputContext ForCodeBlock(Action<BlockContext> action)
     {
         context.RegisterCodeBlockAction(ctx => action(new(
             ctx.CodeBlock,
