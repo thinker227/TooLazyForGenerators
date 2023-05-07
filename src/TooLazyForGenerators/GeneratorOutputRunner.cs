@@ -33,14 +33,13 @@ internal sealed class GeneratorOutputRunner
 
     public Task Run(Type outputType)
     {
-        var ctx = new PipelineContext()
-        {
-            TargetType = outputType,
-            CreateTarget = CreateSourceOutput,
-            Project = project,
-            CancellationToken = cancellationToken,
-            Services = serviceScope.ServiceProvider
-        };
+        var ctx = new PipelineContext(
+            outputType,
+            project,
+            cancellationToken,
+            serviceScope.ServiceProvider,
+            files,
+            errors);
 
         return CallPipelineStep(ctx, 0);
     }
@@ -51,8 +50,14 @@ internal sealed class GeneratorOutputRunner
             return pipelineSteps[stepIndex](pipelineContext, newCtx =>
                 CallPipelineStep(newCtx, stepIndex + 1));
 
-        var instance = pipelineContext.CreateTarget(pipelineContext.TargetType, pipelineContext.Services);
-        var outputContext = new SourceOutputContext(pipelineContext.Project, cancellationToken, files, errors);
+        var instance = (ISourceOutput)ActivatorUtilities.CreateInstance(
+            pipelineContext.Services,
+            pipelineContext.TargetType);
+        var outputContext = new SourceOutputContext(
+            pipelineContext.Project,
+            cancellationToken,
+            files,
+            errors);
         return instance.GetSource(outputContext);
     }
     

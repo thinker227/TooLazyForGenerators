@@ -1,4 +1,5 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using System.Collections.Concurrent;
+using Microsoft.CodeAnalysis;
 
 namespace TooLazyForGenerators.Pipelines;
 
@@ -19,30 +20,50 @@ public delegate Task PipelineContinuation(PipelineContext ctx);
 /// <summary>
 /// A context for a pipeline step.
 /// </summary>
-public sealed class PipelineContext
+public sealed class PipelineContext : ISourceAndErrors
 {
+    private readonly ConcurrentBag<SourceFile> files;
+    private readonly ConcurrentBag<Error> errors;
+
     /// <summary>
     /// The target type of the pipeline.
     /// </summary>
-    public required Type TargetType { get; set; }
-    
-    /// <summary>
-    /// The function called to create an instance of <see cref="ISourceOutput"/> for the target type.
-    /// </summary>
-    public required Func<Type, IServiceProvider, ISourceOutput> CreateTarget { get; set; }
+    public Type TargetType { get; set; }
     
     /// <summary>
     /// The target project.
     /// </summary>
-    public required Project Project { get; set; }
+    public Project Project { get; set; }
     
     /// <summary>
     /// The cancellation token for the generator.
     /// </summary>
-    public required CancellationToken CancellationToken { get; init; }
+    public CancellationToken CancellationToken { get; }
     
     /// <summary>
     /// The services for the generator.
     /// </summary>
-    public required IServiceProvider Services { get; set; }
+    public IServiceProvider Services { get; set; }
+
+    public PipelineContext(
+        Type targetType,
+        Project project,
+        CancellationToken cancellationToken,
+        IServiceProvider services,
+        ConcurrentBag<SourceFile> files,
+        ConcurrentBag<Error> errors)
+    {
+        this.files = files;
+        this.errors = errors;
+        TargetType = targetType;
+        Project = project;
+        CancellationToken = cancellationToken;
+        Services = services;
+    }
+
+    public void AddSource(SourceFile file) =>
+        files.Add(file);
+
+    public void AddError(Error error) =>
+        errors.Add(error);
 }

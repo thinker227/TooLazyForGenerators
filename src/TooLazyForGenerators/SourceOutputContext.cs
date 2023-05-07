@@ -6,7 +6,7 @@ namespace TooLazyForGenerators;
 /// <summary>
 /// A context for an <see cref="ISourceOutput"/>.
 /// </summary>
-public readonly struct SourceOutputContext
+public readonly struct SourceOutputContext : ISourceAndErrors
 {
     private readonly ConcurrentBag<SourceFile> files;
     private readonly ConcurrentBag<Error> errors;
@@ -40,33 +40,9 @@ public readonly struct SourceOutputContext
         CancellationToken = cancellationToken;
     }
 
-    /// <summary>
-    /// Adds a source file.
-    /// </summary>
-    /// <param name="file">The file to add.</param>
     public void AddSource(SourceFile file) =>
         files.Add(file);
-    
-    /// <summary>
-    /// Adds a source file.
-    /// </summary>
-    /// <param name="source">The literal source code contents of the file.</param>
-    /// <param name="fileName">The name of the file.</param>
-    public void AddSource(string source, string fileName) =>
-        AddSource(new(source, fileName));
 
-    /// <summary>
-    /// Adds an error.
-    /// </summary>
-    /// <param name="error">The error to add.</param>
     public void AddError(Error error) =>
         errors.Add(error);
-
-    /// <summary>
-    /// Adds an error.
-    /// </summary>
-    /// <param name="message">The message of the error.</param>
-    /// <param name="location">The location of the error.</param>
-    public void AddError(string message, Location? location = null) =>
-        AddError(new(message, location));
 }
