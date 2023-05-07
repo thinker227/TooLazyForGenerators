@@ -13,7 +13,7 @@ namespace TooLazyForGenerators;
 /// See <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/roslyn-sdk/compiler-api-model">
 /// the compiler API model</seealso> for more information about compilation entities and types.
 /// </remarks>
-public readonly struct SourceOutputInitalizationContext
+public readonly partial struct SourceOutputInitalizationContext
 {
     private readonly AnalysisContext context;
     
