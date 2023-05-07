@@ -67,20 +67,33 @@ public readonly struct NewSourceOutputContext
         this.errors = errors;
     }
 
-    public void ForCompilation(Action<Compilation> action) =>
+    public NewSourceOutputContext ForCompilation(Action<Compilation> action)
+    {
         context.RegisterCompilationAction(ctx => action(ctx.Compilation));
+        
+        return this;
+    }
 
-    public void ForSyntaxTree(Action<SyntaxTreeContext> action) =>
+    public NewSourceOutputContext ForSyntaxTree(Action<SyntaxTreeContext> action)
+    {
         context.RegisterSyntaxTreeAction(ctx => action(new(
             ctx.Tree,
             ctx.IsGeneratedCode)));
+            
+        return this;
+    }
 
-    public void ForSemanticModel(Action<SemanticModelContext> action) =>
+    public NewSourceOutputContext ForSemanticModel(Action<SemanticModelContext> action)
+    {
         context.RegisterSemanticModelAction(ctx => action(new(
             ctx.SemanticModel,
             ctx.IsGeneratedCode)));
+            
+        return this;
+    }
 
-    public void ForSyntaxNode(Action<SyntaxNodeContext> action, ImmutableArray<SyntaxKind> syntaxKinds) =>
+    public NewSourceOutputContext ForSyntaxNode(Action<SyntaxNodeContext> action, ImmutableArray<SyntaxKind> syntaxKinds)
+    {
         context.RegisterSyntaxNodeAction(
             ctx => action(new(
                 ctx.Node,
@@ -89,28 +102,43 @@ public readonly struct NewSourceOutputContext
                 ctx.ContainingSymbol,
                 ctx.IsGeneratedCode)),
             syntaxKinds);
+            
+        return this;
+    }
 
-    public void ForSymbol(Action<SymbolContext> action, ImmutableArray<SymbolKind> symbolKinds) =>
+    public NewSourceOutputContext ForSymbol(Action<SymbolContext> action, ImmutableArray<SymbolKind> symbolKinds)
+    {
         context.RegisterSymbolAction(ctx => action(new(
                 ctx.Symbol,
                 ctx.Compilation,
                 ctx.IsGeneratedCode)),
             symbolKinds);
+            
+        return this;
+    }
 
-    public void ForOperation(Action<OperationContext> action, ImmutableArray<OperationKind> operationKinds) =>
+    public NewSourceOutputContext ForOperation(Action<OperationContext> action, ImmutableArray<OperationKind> operationKinds)
+    {
         context.RegisterOperationAction(ctx => action(new(
                 ctx.Operation,
                 ctx.Compilation,
                 ctx.ContainingSymbol,
                 ctx.IsGeneratedCode)),
             operationKinds);
+            
+        return this;
+    }
 
-    public void ForCodeBlock(Action<BlockContext> action) =>
+    public NewSourceOutputContext ForCodeBlock(Action<BlockContext> action)
+    {
         context.RegisterCodeBlockAction(ctx => action(new(
             ctx.CodeBlock,
             ctx.SemanticModel,
             ctx.OwningSymbol,
             ctx.IsGeneratedCode)));
+            
+        return this;
+    }
 }
 
 public readonly record struct SyntaxTreeContext(
