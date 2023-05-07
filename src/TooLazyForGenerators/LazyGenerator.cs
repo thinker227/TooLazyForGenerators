@@ -22,7 +22,7 @@ public sealed class LazyGenerator
     /// Initializes a new <see cref="LazyGenerator"/> instance.
     /// </summary>
     /// <param name="projectFiles">The project files the generator targets.</param>
-    /// <param name="outputs">The output types implementing <see cref="ISourceOutput"/> the generator will call.</param>
+    /// <param name="outputs">The output types implementing <see cref="SourceOutput"/> the generator will call.</param>
     /// <param name="cancellationToken">The cancellation token for the generator.</param>
     /// <param name="services">The services for the generator.</param>
     /// <param name="options">The execution options for the generator.</param>
