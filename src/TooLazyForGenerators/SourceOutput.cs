@@ -74,5 +74,5 @@ public abstract class SourceOutput
     /// </summary>
     /// <param name="ctx">A context object which allows the generator to register actions
     /// for different kinds of compilation entities.</param>
-    public abstract void Initialize(SourceOutputContext ctx);
+    public abstract void Initialize(SourceOutputInitalizationContext ctx);
 }

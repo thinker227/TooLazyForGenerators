@@ -1,26 +1,24 @@
-﻿using System.Collections.Concurrent;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace TooLazyForGenerators;
 
-// TODO: Rename this to just SourceOutputContext once the old SourceOutputContext is removed.
-public readonly struct SourceOutputContext
+public readonly struct SourceOutputInitalizationContext
 {
     private readonly AnalysisContext context;
     
-    public SourceOutputContext(AnalysisContext context) => this.context = context;
+    public SourceOutputInitalizationContext(AnalysisContext context) => this.context = context;
 
-    public SourceOutputContext ForCompilation(Action<Compilation> action)
+    public SourceOutputInitalizationContext ForCompilation(Action<Compilation> action)
     {
         context.RegisterCompilationAction(ctx => action(ctx.Compilation));
         
         return this;
     }
 
-    public SourceOutputContext ForSyntaxTree(Action<SyntaxTreeContext> action)
+    public SourceOutputInitalizationContext ForSyntaxTree(Action<SyntaxTreeContext> action)
     {
         context.RegisterSyntaxTreeAction(ctx => action(new(
             ctx.Tree,
@@ -29,7 +27,7 @@ public readonly struct SourceOutputContext
         return this;
     }
 
-    public SourceOutputContext ForSemanticModel(Action<SemanticModelContext> action)
+    public SourceOutputInitalizationContext ForSemanticModel(Action<SemanticModelContext> action)
     {
         context.RegisterSemanticModelAction(ctx => action(new(
             ctx.SemanticModel,
@@ -38,7 +36,7 @@ public readonly struct SourceOutputContext
         return this;
     }
 
-    public SourceOutputContext ForSyntaxNode(Action<SyntaxNodeContext> action, ImmutableArray<SyntaxKind> syntaxKinds)
+    public SourceOutputInitalizationContext ForSyntaxNode(Action<SyntaxNodeContext> action, ImmutableArray<SyntaxKind> syntaxKinds)
     {
         context.RegisterSyntaxNodeAction(
             ctx => action(new(
@@ -52,7 +50,7 @@ public readonly struct SourceOutputContext
         return this;
     }
 
-    public SourceOutputContext ForSymbol(Action<SymbolContext> action, ImmutableArray<SymbolKind> symbolKinds)
+    public SourceOutputInitalizationContext ForSymbol(Action<SymbolContext> action, ImmutableArray<SymbolKind> symbolKinds)
     {
         context.RegisterSymbolAction(ctx => action(new(
                 ctx.Symbol,
@@ -63,7 +61,7 @@ public readonly struct SourceOutputContext
         return this;
     }
 
-    public SourceOutputContext ForOperation(Action<OperationContext> action, ImmutableArray<OperationKind> operationKinds)
+    public SourceOutputInitalizationContext ForOperation(Action<OperationContext> action, ImmutableArray<OperationKind> operationKinds)
     {
         context.RegisterOperationAction(ctx => action(new(
                 ctx.Operation,
@@ -75,7 +73,7 @@ public readonly struct SourceOutputContext
         return this;
     }
 
-    public SourceOutputContext ForCodeBlock(Action<BlockContext> action)
+    public SourceOutputInitalizationContext ForCodeBlock(Action<BlockContext> action)
     {
         context.RegisterCodeBlockAction(ctx => action(new(
             ctx.CodeBlock,
