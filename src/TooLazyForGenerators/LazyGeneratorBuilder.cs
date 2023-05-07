@@ -109,7 +109,7 @@ public sealed class LazyGeneratorBuilder
     /// Registers an output for the generator to use.
     /// </summary>
     /// <param name="outputType">The type of the output to register.
-    /// The type has to implement <see cref="ISourceOutput"/>.</param>
+    /// The type has to implement <see cref="SourceOutput"/>.</param>
     public LazyGeneratorBuilder WithOutput(Type outputType)
     {
         outputs.Add(outputType);
@@ -117,11 +117,11 @@ public sealed class LazyGeneratorBuilder
     }
     
     /// <summary>
-    /// Registers an <see cref="ISourceOutput"/> for the generator to use.
+    /// Registers an <see cref="SourceOutput"/> for the generator to use.
     /// </summary>
     /// <typeparam name="T">The type of the output to register.</typeparam>
     public LazyGeneratorBuilder WithOutput<T>()
-        where T : ISourceOutput, new() =>
+        where T : SourceOutput, new() =>
         WithOutput(typeof(T));
     
     /// <summary>
@@ -135,7 +135,7 @@ public sealed class LazyGeneratorBuilder
         assembly ??= Assembly.GetCallingAssembly();
 
         var types = assembly.GetTypes()
-            .Where(ImplementsISourceOutputT)
+            .Where(InheritsSourceOutput)
             .ToArray();
 
         foreach (var type in types)
@@ -145,10 +145,20 @@ public sealed class LazyGeneratorBuilder
 
         return this;
     }
-    
-    private static bool ImplementsISourceOutputT(Type type) => type.GetInterfaces()
-        .Any(i => i == typeof(ISourceOutput));
-    
+
+    private static bool InheritsSourceOutput(Type type)
+    {
+        var currentType = type;
+        
+        while (currentType is not null)
+        {
+            if (currentType == typeof(SourceOutput)) return true;
+            currentType = currentType.BaseType;
+        }
+
+        return false;
+    }
+
     /// <summary>
     /// Adds a pipeline step the generator pipeline should use.
     /// </summary>
