@@ -75,12 +75,16 @@ public sealed class LazyGenerator
         var files = new ConcurrentBag<SourceFile>();
         var errors = new ConcurrentBag<Error>();
 
+        // ISourceOutput instances don't have lifetimes longer than this method.
+        // ReSharper disable once AccessToDisposedClosure
+        ISourceOutput CreateSourceOutput(Type type) =>
+            (ISourceOutput)ActivatorUtilities.CreateInstance(serviceScope.ServiceProvider, type);
+
         // The analyzer lifetime is no longer than the execution of this method.
         // ReSharper disable once AccessToDisposedClosure
         var analyzers = outputs
             .Select(type => (DiagnosticAnalyzer)new GeneratorAnalyzerWrapper(
-                type,
-                serviceScope.ServiceProvider,
+                CreateSourceOutput(type),
                 options,
                 files,
                 errors))
@@ -106,7 +110,7 @@ public sealed class LazyGenerator
         workspace.OpenProjectAsync(
             projectFilePath: projectFile.FullName,
             cancellationToken: cancellationToken);
-    
+
     private readonly record struct ProjectResult(
         IReadOnlyCollection<ProjectSourceFile> Files,
         IReadOnlyCollection<Error> Errors);
