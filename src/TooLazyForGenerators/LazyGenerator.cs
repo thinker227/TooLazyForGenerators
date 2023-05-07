@@ -64,7 +64,7 @@ public sealed class LazyGenerator
 
         using var serviceScope = services.CreateScope();
         
-        var runner = new GeneratorOutputRunner(pipelineSteps, files, errors, project, cancellationToken, serviceScope);
+        var runner = new ProjectRunner(pipelineSteps, files, errors, project, cancellationToken, serviceScope);
 
         await Task.WhenAll(outputs
             .Select(type => runner.Run(type)));

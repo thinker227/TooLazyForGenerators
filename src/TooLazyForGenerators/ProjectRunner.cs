@@ -6,7 +6,7 @@ using TooLazyForGenerators.Pipelines;
 
 namespace TooLazyForGenerators;
 
-internal sealed class GeneratorOutputRunner
+internal sealed class ProjectRunner
 {
     private readonly IReadOnlyList<PipelineStep> pipelineSteps;
     private readonly ConcurrentBag<SourceFile> files;
@@ -15,7 +15,7 @@ internal sealed class GeneratorOutputRunner
     private readonly CancellationToken cancellationToken;
     private readonly IServiceScope serviceScope;
 
-    public GeneratorOutputRunner(
+    public ProjectRunner(
         IReadOnlyList<PipelineStep> pipelineSteps,
         ConcurrentBag<SourceFile> files,
         ConcurrentBag<Error> errors,
