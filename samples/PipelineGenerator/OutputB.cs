@@ -2,11 +2,8 @@
 
 namespace PipelineGenerator;
 
+// TODO: Remove this if pipelines aren't supported anymore.
 public sealed class OutputB : ISourceOutput
 {
-    public Task GetSource(SourceOutputContext ctx)
-    {
-        Console.WriteLine("Output B");
-        return Task.CompletedTask;
-    }
+    public void Initialize(NewSourceOutputContext ctx) => throw new NotImplementedException();
 }

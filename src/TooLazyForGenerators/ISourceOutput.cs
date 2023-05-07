@@ -9,12 +9,10 @@ namespace TooLazyForGenerators;
 public interface ISourceOutput
 {
     /// <summary>
-    /// Gets a source from a <see cref="Project"/>.
+    /// Called when initializing the source output.
+    /// Use the provided <paramref name="ctx"/> to register actions which will be called
+    /// on specific kinds of compilation entities, then use  
     /// </summary>
-    /// <param name="ctx">A context object which provides additional information
-    /// as well as methods to register output.</param>
-    [Obsolete("Removing this later.")]
-    Task GetSource(SourceOutputContext ctx);
-
+    /// <param name="ctx"></param>
     void Initialize(NewSourceOutputContext ctx);
 }
