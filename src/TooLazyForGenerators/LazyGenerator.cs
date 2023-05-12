@@ -84,9 +84,7 @@ public sealed class LazyGenerator
                 
                 return (DiagnosticAnalyzer)new GeneratorAnalyzerWrapper(
                     sourceOutput,
-                    options,
-                    files,
-                    errors);
+                    options);
             })
             .ToImmutableArray();
 

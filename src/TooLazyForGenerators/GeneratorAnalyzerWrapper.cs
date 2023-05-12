@@ -10,19 +10,13 @@ internal sealed class GeneratorAnalyzerWrapper : DiagnosticAnalyzer
 {
     private readonly SourceOutput sourceOutput;
     private readonly ExecutionOptions options;
-    private readonly ConcurrentBag<SourceFile> files;
-    private readonly ConcurrentBag<Error> errors;
 
     public GeneratorAnalyzerWrapper(
         SourceOutput sourceOutput,
-        ExecutionOptions options,
-        ConcurrentBag<SourceFile> files,
-        ConcurrentBag<Error> errors)
+        ExecutionOptions options)
     {
         this.sourceOutput = sourceOutput;
         this.options = options;
-        this.files = files;
-        this.errors = errors;
     }
 
     // This diagnostic should never occur, but it is required for the analyzer to run. 
