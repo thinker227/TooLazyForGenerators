@@ -8,9 +8,10 @@ namespace TooLazyForGenerators;
 /// </summary>
 public sealed class LazyGeneratorBuilder
 {
-    private readonly List<FileInfo> projectFiles = new();
-    private readonly List<Type> outputs = new();
-    private ExecutionOptions options = new();
+    private readonly List<Func<LazyGeneratorBuilder, Task>> asyncCalls;
+    private readonly List<FileInfo> projectFiles;
+    private readonly List<Type> outputs;
+    private ExecutionOptions options;
     
     /// <summary>
     /// The cancellation token for the builder.
@@ -28,6 +29,10 @@ public sealed class LazyGeneratorBuilder
     /// <param name="cancellationToken">The cancellation token for the builder.</param>
     public LazyGeneratorBuilder(CancellationToken cancellationToken = default)
     {
+        asyncCalls = new();
+        projectFiles = new();
+        outputs = new();
+        options = new();
         CancellationToken = cancellationToken;
         Services = new ServiceCollection();
     }
@@ -86,25 +91,29 @@ public sealed class LazyGeneratorBuilder
     /// in which case <see cref="TargetingProject(string)"/> with a hardcoded project file path
     /// or project file path supplied through command-line arguments would be more appropriate. 
     /// </remarks>
-    public async Task<LazyGeneratorBuilder> TargetingProjectWithName(
+    public LazyGeneratorBuilder TargetingProjectWithName(
         string projectName)
     {
-        DirectoryInfo currentDirectory = new(Directory.GetCurrentDirectory());
-        var solutionPath = TryGetSolutionInParentDirectories(currentDirectory);
-
-        if (solutionPath is null) return this;
-
-        using var workspace = WorkspaceUtils.CreateWorkspace();
-        var solution = await workspace.OpenSolutionAsync(
-            solutionFilePath: solutionPath,
-            cancellationToken: CancellationToken);
-
-        var project = solution.Projects.FirstOrDefault(p => p.Name == projectName);
-        if (project?.FilePath is null) return this;
-
-        TargetingProject(project.FilePath);
-        
+        asyncCalls.Add(Execute);
         return this;
+
+        async Task Execute(LazyGeneratorBuilder builder)
+        {
+            DirectoryInfo currentDirectory = new(Directory.GetCurrentDirectory());
+            var solutionPath = TryGetSolutionInParentDirectories(currentDirectory);
+
+            if (solutionPath is null) return;
+
+            using var workspace = WorkspaceUtils.CreateWorkspace();
+            var solution = await workspace.OpenSolutionAsync(
+                solutionFilePath: solutionPath,
+                cancellationToken: builder.CancellationToken);
+
+            var project = solution.Projects.FirstOrDefault(p => p.Name == projectName);
+            if (project?.FilePath is null) return;
+
+            builder.TargetingProject(project.FilePath);
+        }
     }
     
     private static string? TryGetSolutionInParentDirectories(DirectoryInfo directory)
@@ -204,10 +213,18 @@ public sealed class LazyGeneratorBuilder
     /// <summary>
     /// Builds the generator.
     /// </summary>
-    public LazyGenerator Build() => new(
-        projectFiles,
-        outputs,
-        CancellationToken,
-        Services.BuildServiceProvider(),
-        options);
+    public async Task<LazyGenerator> Build()
+    {
+        foreach (var call in asyncCalls)
+        {
+            await call(this);
+        }
+        
+        return new(
+            projectFiles,
+            outputs,
+            CancellationToken,
+            Services.BuildServiceProvider(),
+            options);
+    }
 }
