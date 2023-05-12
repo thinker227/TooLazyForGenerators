@@ -33,6 +33,23 @@ public sealed class LazyGeneratorBuilder
     }
 
     /// <summary>
+    /// Creates a new <see cref="LazyGeneratorBuilder"/> using a <see cref="System.Threading.CancellationToken"/>
+    /// which is cancelled when the <see cref="Console"/> receives a cancel input.
+    /// </summary>
+    public static LazyGeneratorBuilder CreateUsingConsoleCancelling()
+    {
+        CancellationTokenSource cts = new();
+        
+        Console.CancelKeyPress += (_, e) =>
+        {
+            e.Cancel = true;
+            cts.Cancel();
+        };
+
+        return new(cts.Token);
+    }
+
+    /// <summary>
     /// Adds a project for the generator to target.
     /// </summary>
     /// <param name="projectFile">The project (<c>.csproj</c>) file of the project.</param>
