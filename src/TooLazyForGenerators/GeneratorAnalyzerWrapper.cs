@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace TooLazyForGenerators;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
-public sealed class GeneratorAnalyzerWrapper : DiagnosticAnalyzer
+internal sealed class GeneratorAnalyzerWrapper : DiagnosticAnalyzer
 {
     private readonly SourceOutput sourceOutput;
     private readonly ExecutionOptions options;
