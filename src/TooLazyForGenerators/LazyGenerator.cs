@@ -48,8 +48,25 @@ public sealed class LazyGenerator
     {
         var workspace = WorkspaceUtils.CreateWorkspace();
 
-        var results = await Task.WhenAll(projectFiles
-            .Select(file => HandleProject(workspace, file)));
+        IEnumerable<ProjectResult> results;
+        
+        if (options.RunConcurrently)
+        {
+            results = await Task.WhenAll(projectFiles
+                .Select(file => HandleProject(workspace, file)));
+        }
+        else
+        {
+            var list = new List<ProjectResult>();
+
+            foreach (var file in projectFiles)
+            {
+                var result = await HandleProject(workspace, file);
+                list.Add(result);
+            }
+            
+            results = list;
+        }
 
         return new(
             results.SelectMany(r => r.Files).ToArray(),
